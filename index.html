@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>紳士AI讚美產生器 (v11.5 SVG Final)</title>
+    <title>紳士AI讚美產生器 (v12.5 Final Polish)</title>
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -46,7 +46,7 @@
         html.theme-colorful .tab-btn.active { background: linear-gradient(135deg, #AF52DE, #FF2D55); border: none; color: white; box-shadow: none; }
         html.theme-colorful .theme-btn.active { background: linear-gradient(135deg, #34C759, #007AFF); border: none; color: white; box-shadow: none; }
         html.theme-colorful .welcome-header-pill { background: linear-gradient(90deg, #FF2D55, #AF52DE); }
-        html.theme-colorful .control-option.active { color: #AF52DE !important; border-color: transparent !important; }
+        html.theme-colorful .control-option.active { border: 2px solid #AF52DE !important; color: #AF52DE !important; background: transparent !important; }
 
         html.theme-mono { filter: grayscale(100%); --primary: #333; --secondary: #666; --btn-regen: #333; --btn-emoji: #333; --active-bg: #333; --emo-text: #000; --emo-bg: #E5E5EA; --xp-bar-fill: #BDBDBD; --fav-color: #666; --bg: #F2F2F7; --card: #FFF; }
         html.dark-mode.theme-mono { --bg: #000; --card: #1C1C1E; --primary: #8E8E93; --btn-regen: #3A3A3C; --btn-emoji: #3A3A3C; --active-bg: #3A3A3C; --emo-text: #FFF; --emo-bg: #2C2C2E; --xp-bar-fill: #616161; --fav-color: #8E8E93; }
@@ -197,13 +197,16 @@
         
         .panel-header { padding: 12px 16px; background: transparent; border-bottom: none; color: var(--text); font-size: 0.9rem; font-weight: 800; display: flex; align-items: center; justify-content: space-between; letter-spacing: 0.02em; cursor: pointer; }
         html.dark-mode .panel-header { background: transparent; }
+        .panel-header span { display: flex; align-items: center; }
         .panel-header-sub { font-size: 0.75rem; opacity: 0.6; font-weight: normal; margin-left: auto; }
         .panel-content { padding: 0 10px 10px 10px; }
         .panel-content.hidden { display: none; }
         .section-title { display: none; }
         .sub-placeholder { text-align: center; color: var(--sub-text); font-size: 0.85rem; padding: 10px; width: 100%; }
         
-        .dict-arrow { transition: transform 0.3s ease; display: inline-block; font-size: 0.8rem; margin-left: 6px; opacity: 0.6; }
+        .dict-arrow { transition: transform 0.3s ease; display: inline-block; margin-left: 6px; opacity: 0.6; transform: rotate(0deg); }
+        .dict-arrow svg { width: 1.3em; height: 1.3em; vertical-align: middle; fill: currentColor; }
+        .dict-arrow.expanded { transform: rotate(180deg); }
         
         .control-option { 
             flex: 1; 
@@ -217,16 +220,16 @@
             transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); 
             white-space: nowrap; 
             overflow: hidden; 
-            border: none;
+            border: 2px solid transparent; /* Reserve space for border */
             background: transparent;
             margin: 0;
         }
         .control-option.active { 
-            background-color: var(--card); 
-            color: var(--text); 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            background-color: transparent; 
+            color: var(--primary); 
+            border: 2px solid var(--primary);
+            box-shadow: none;
             font-weight: 700;
-            border: none;
         }
 
         .category-btn { 
@@ -322,6 +325,8 @@
         
         .btn-ai-batch { background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); color: white; position: relative; overflow: hidden; }
         .btn-ai-batch::after { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%); transform: rotate(30deg); animation: shimmer 3s infinite; pointer-events: none; }
+        .btn-ai-batch.disabled { background: var(--border) !important; color: var(--sub-text) !important; cursor: not-allowed; box-shadow: none; }
+        .btn-ai-batch.disabled::after { display: none; }
 
         .search-block { margin-top: 2px; margin-bottom: 10px; padding: 10px; background-color: var(--section-bg); border-radius: 32px; border: none; display: flex; flex-direction: column; gap: 10px; }
         .search-box { display: flex; gap: 8px; width: 100%; order: 2; }
@@ -382,7 +387,7 @@
         .close-x { color: var(--sub-text); font-size: 1.4rem; font-weight: 600; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.05); border-radius: 50%; transition: background 0.2s; }
         .close-x:active { background: rgba(0,0,0,0.1); }
         .tab-group { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; background: var(--section-bg); padding: 4px; border-radius: 50px; border: none; justify-content: flex-start; }
-        .tab-btn { width: 32%; flex: 1; padding: 8px 4px; text-align: center; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--sub-text); border-radius: 50px; transition: all 0.2s; border: none; background-color: transparent; }
+        .tab-btn { white-space: nowrap; width: 32%; flex: 1; padding: 8px 4px; text-align: center; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--sub-text); border-radius: 50px; transition: all 0.2s; border: none; background-color: transparent; display: flex; align-items: center; justify-content: center; gap: 6px; }
         .tab-btn.active { background-color: var(--card); color: var(--text); box-shadow: none; }
         .history-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 4px; }
         .history-item { padding: 14px; background-color: var(--section-bg); border-radius: 32px; font-size: 0.9rem; color: var(--text); cursor: pointer; border: none; transition: transform 0.1s, background-color 0.2s; word-break: break-all; display: flex; justify-content: space-between; align-items: center; }
@@ -725,7 +730,7 @@
         <!-- 頂部排版優化 -->
         <div class="header-row">
             <h1>
-                <svg viewBox="0 0 24 24"><path d="M5 16h14a2 2 0 0 1 2 2v2H3v-2a2 2 0 0 1 2-2zm7-14a5 5 0 0 1 5 5v4H7V7a5 5 0 0 1 5-5z"/></svg> 
+                <svg viewBox="0 0 24 24"><path d="M12 2L12 2 L 8 4 L 9 6 L 5 22 L 12 20 L 19 22 L 15 6 L 16 4 Z"/></svg>
                 紳士ＡＩ讚美產生器
             </h1>
             <div class="settings-hitbox" onclick="openSettings(event)">
@@ -739,10 +744,17 @@
         <div class="group-section">
             <!-- 第一行：預設辭庫 + 精選按鈕 -->
             <div class="panel-header" onclick="toggleDictionarySection()">
-                <span>📂 預設辭庫 <span id="dict-arrow" class="dict-arrow">
-                    <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
-                </span></span>
-                <button id="btn-show-featured" class="header-small-btn touch-feedback hidden" onclick="event.stopPropagation(); selectFeaturedCategory(this)">⭐ 精選</button>
+                <span>
+                    <svg class="icon-svg" style="margin-right:6px;" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                    預設辭庫 
+                    <span id="dict-arrow" class="dict-arrow">
+                        <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </span>
+                </span>
+                <button id="btn-show-featured" class="header-small-btn touch-feedback hidden" onclick="event.stopPropagation(); selectFeaturedCategory(this)">
+                    <svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    精選
+                </button>
             </div>
             
             <!-- 內容區塊，預設隱藏 -->
@@ -756,8 +768,14 @@
                 
                 <!-- 第二行：細部分類標題 + 加入按鈕 -->
                 <div class="panel-header sub-header" style="cursor: default;">
-                    <span>📍 細部分類</span>
-                    <button id="embedded-star-btn" class="header-small-btn disabled touch-feedback">⭐ 加入</button>
+                    <span>
+                        <svg class="icon-svg" style="margin-right:6px;" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        細部分類
+                    </span>
+                    <button id="embedded-star-btn" class="header-small-btn disabled touch-feedback">
+                        <svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        加入
+                    </button>
                 </div>
                 <div class="panel-content">
                     <div class="sub-placeholder">請選擇上方分類...</div>
@@ -970,12 +988,22 @@
         <div class="modal-content" id="settings-content-box" onclick="event.stopPropagation()">
             <div class="modal-header"><div class="modal-title">⚙️ 詳細設定</div><div class="close-x touch-feedback" onclick="closeSettings()">×</div></div>
             <div class="tab-group">
-                <div id="tab-general" class="tab-btn active touch-feedback" onclick="switchSettingsTab('general')">🛠️ 一般</div>
-                <div id="tab-theme" class="tab-btn touch-feedback" onclick="switchSettingsTab('theme')">🏆 外觀</div>
-                <div id="tab-custom" class="tab-btn touch-feedback" onclick="switchSettingsTab('custom')">🎨 自訂</div>
-                <div id="tab-faces" class="tab-btn touch-feedback" onclick="switchSettingsTab('faces')">🙂 臉部</div>
-                <div id="tab-decor" class="tab-btn touch-feedback" onclick="switchSettingsTab('decor')">✨ 裝飾</div>
-                <div id="tab-data" class="tab-btn touch-feedback" onclick="switchSettingsTab('data')">💾 資料</div>
+                <div id="tab-general" class="tab-btn active touch-feedback" onclick="switchSettingsTab('general')">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                    一般
+                </div>
+                <div id="tab-theme" class="tab-btn touch-feedback" onclick="switchSettingsTab('theme')">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9 8 9.67 8 10.5 7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 9 17.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                    外觀
+                </div>
+                <div id="tab-emoji" class="tab-btn touch-feedback" onclick="switchSettingsTab('emoji')">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                    表符自訂
+                </div>
+                <div id="tab-data" class="tab-btn touch-feedback" onclick="switchSettingsTab('data')">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+                    資料
+                </div>
             </div>
             
             <div id="panel-general" style="flex: 1; overflow-y: auto; padding-right: 5px;">
@@ -1048,17 +1076,30 @@
                 </div>
             </div>
 
-            <div id="panel-emoji" style="flex: 1; overflow-y: auto; display:none;">
-                <div class="emoji-input-group"><input type="text" id="new-emoji-input" class="emoji-input" placeholder="貼上或輸入新表符..."><button class="emoji-add-btn touch-feedback" onclick="addNewEmoji()">新增</button></div>
-                <div style="display:flex; justify-content:flex-end; margin-bottom:8px;"><button class="clear-btn touch-feedback" style="width:auto; padding:4px 10px; font-size:0.75rem;" onclick="resetEmojiList()">🔄 恢復預設</button></div>
-                <div class="section-title" style="margin-bottom: 8px;">點擊以停用/啟用 (灰色為停用)</div>
-                <div id="emoji-grid" class="emoji-grid"></div>
-            </div>
+            <div id="panel-emoji-combined" style="flex: 1; overflow-y: auto; display:none; padding-right: 5px;">
+                <div class="setting-group">
+                    <div class="setting-group-header">🎨 自訂數量</div>
+                    <div class="setting-row"><div class="setting-label">最少幾個？</div><div class="setting-control"><input type="range" min="1" max="10" value="3" id="min-custom-slider" oninput="updateCustomMix('min', this.value)"><span id="min-custom-display" class="slider-val-display">3</span></div></div>
+                    <div class="setting-row"><div class="setting-label">最多幾個？</div><div class="setting-control"><input type="range" min="1" max="10" value="5" id="max-custom-slider" oninput="updateCustomMix('max', this.value)"><span id="max-custom-display" class="slider-val-display">5</span></div></div>
+                </div>
 
-            <div id="panel-custom" style="flex: 1; overflow-y: auto; display:none;">
-                <div class="section-title" style="margin-top:0;">🎨 自訂表符數量</div>
-                <div class="setting-row"><div class="setting-label">最少幾個？</div><div class="setting-control"><input type="range" min="1" max="10" value="3" id="min-custom-slider" oninput="updateCustomMix('min', this.value)"><span id="min-custom-display" class="slider-val-display">3</span></div></div>
-                <div class="setting-row"><div class="setting-label">最多幾個？</div><div class="setting-control"><input type="range" min="1" max="10" value="5" id="max-custom-slider" oninput="updateCustomMix('max', this.value)"><span id="max-custom-display" class="slider-val-display">5</span></div></div>
+                <div class="setting-group">
+                    <div class="setting-group-header">🙂 臉部表符</div>
+                    <div class="emoji-input-group"><input type="text" id="new-face-input" class="emoji-input" placeholder="貼上或輸入新表符..."><button class="emoji-add-btn touch-feedback" onclick="addNewEmoji('face')">新增</button></div>
+                    <div class="section-title" style="margin-bottom: 8px;">點擊以停用/啟用</div>
+                    <div id="faces-grid" class="emoji-grid"></div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="setting-group-header">✨ 裝飾符號</div>
+                    <div class="emoji-input-group"><input type="text" id="new-decor-input" class="emoji-input" placeholder="貼上或輸入新符號..."><button class="emoji-add-btn touch-feedback" onclick="addNewEmoji('decor')">新增</button></div>
+                    <div class="section-title" style="margin-bottom: 8px;">點擊以停用/啟用</div>
+                    <div id="decor-grid" class="emoji-grid"></div>
+                </div>
+
+                <div style="text-align:center; margin-bottom:12px;">
+                    <button class="clear-btn touch-feedback" style="width:auto; padding:8px 16px; font-size:0.8rem;" onclick="resetEmojiList()">🔄 恢復預設表符列表</button>
+                </div>
             </div>
 
             <div class="modal-footer"><button class="close-btn-full touch-feedback" onclick="closeSettings()">關閉設定</button></div>
@@ -1069,8 +1110,8 @@
         const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6yn6wGB_TcdLtSDqQMiaDL3WICybpnSqDXqMn8sQ1XFLjiqdqqQib2bO1x7nAHrWYVK7VSrDU2io/pub?output=csv';
         const KAOMOJI_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6yn6wGB_TcdLtSDqQMiaDL3WICybpnSqDXqMn8sQ1XFLjiqdqqQib2bO1x7nAHrWYVK7VSrDU2io/pub?output=csv&gid=1661570307';
         
-        const defaultFaces = ["😍", "🥰", "😘", "😚", "😋", "🥵", "😳", "🥺", "😭", "😤", "🙏", "🤤", "😵‍💫", "🫠", "🫦", "🫡", "😇", "🤯", "🫣", "🤭", "🥴", "🤠", "😎"];
-        const defaultDecor = ["❤️", "🧡", "💛", "💙", "💜", "🤍", "❣️", "💕", "💞", "💓", "💗", "💖", "💘", "💝", "💟", "❤️‍🔥", "🫶", "✨", "🌟", "💫", "💥", "💢",  "📸", "💎", "🔥", "💦", "🔞", "💋", "👅", "👙", "👠", "🎀", "🥀", "🌹", "🩸", "👃", "🦵", "🍑", "🍼", "🙏", "🙇", "🙌", "👐", "🫶", "👌", "👉", "👆", "👇", "👍", "🛐", "🤝", "💪"];
+        const defaultFaces = ["😍", "🥰", "😘", "😋", "🥵", "😳", "🥺", "😭", "🙏", "🤤", "🫡", "😇", "🫣", "🤭", "😵‍💫", "🤠", "☺️"];
+        const defaultDecor = ["❤️", "🧡", "💛", "💙", "💜", "🤍", "❣️", "💕", "💞", "💓", "💗", "💝", "❤️‍🔥", "🫶", "✨", "🌟", "💫", "💎", "🔥", "💦", "🌹", "🙏", "👏", "🙌"];
         const punctuations = ["…", "…！", "…！！", "！", "！！", "！！！"];
         
         let database = {};
@@ -1333,6 +1374,7 @@
             renderMainCategories();
             
             const defaultMain = "⏫ 反應短句", defaultSub = "🥰 單純可愛";
+            updateStatusUI('idle'); 
             
             searchInput.addEventListener("keypress", function(event) { if (event.key === "Enter") searchPhrases(); });
             updateActionButtonsState(); 
@@ -1789,12 +1831,11 @@
         function closeSettings(event) { if (event && event.target.id !== 'settings-modal') return; document.getElementById('settings-modal').style.display = 'none'; }
         function switchSettingsTab(tab) {
             currentSettingsTab = tab; document.querySelectorAll('#settings-modal .tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('panel-general').style.display = 'none'; document.getElementById('panel-theme').style.display = 'none'; document.getElementById('panel-emoji').style.display = 'none'; document.getElementById('panel-custom').style.display = 'none'; document.getElementById('panel-data').style.display = 'none';
+            document.getElementById('panel-general').style.display = 'none'; document.getElementById('panel-theme').style.display = 'none'; document.getElementById('panel-emoji-combined').style.display = 'none'; document.getElementById('panel-data').style.display = 'none';
             if (tab === 'general') { document.getElementById('tab-general').classList.add('active'); document.getElementById('panel-general').style.display = 'block'; } 
             else if (tab === 'theme') { document.getElementById('tab-theme').classList.add('active'); document.getElementById('panel-theme').style.display = 'block'; }
-            else if (tab === 'custom') { document.getElementById('tab-custom').classList.add('active'); document.getElementById('panel-custom').style.display = 'block'; } 
+            else if (tab === 'emoji') { document.getElementById('tab-emoji').classList.add('active'); document.getElementById('panel-emoji-combined').style.display = 'block'; renderEmojiGrid(); } 
             else if (tab === 'data') { document.getElementById('tab-data').classList.add('active'); document.getElementById('panel-data').style.display = 'block'; }
-            else { document.getElementById('tab-' + tab).classList.add('active'); document.getElementById('panel-emoji').style.display = 'block'; renderEmojiGrid(); }
         }
         function openTutorial() { triggerHaptic(10); document.getElementById('settings-modal').style.display = 'none'; const modal = document.getElementById('tutorial-modal'); const content = document.getElementById('tutorial-content-box'); modal.style.display = 'block'; content.style.top = '10%'; unlockAchievement("read_tutorial"); }
         function closeTutorial(event) { if (event && event.target.id !== 'tutorial-modal' && event.target.className !== 'close-btn-full' && event.target.className !== 'close-x') return; document.getElementById('tutorial-modal').style.display = 'none'; document.getElementById('settings-modal').style.display = 'block'; }
@@ -1834,23 +1875,34 @@
         function resetAllData() { if(confirm("確定要清除所有資料嗎？\n這將重置所有設定、收藏與自訂表符。")) { triggerHaptic(10); setTimeout(() => { localStorage.clear(); location.reload(); }, 1000); } }
 
         function renderEmojiGrid() {
-            const grid = document.getElementById('emoji-grid'); grid.innerHTML = '';
-            const activeList = currentSettingsTab === 'faces' ? activeFaces : activeDecor; const disabledList = currentSettingsTab === 'faces' ? disabledFaces : disabledDecor;
-            activeList.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, true); grid.appendChild(chip); });
-            disabledList.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip disabled'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, false); grid.appendChild(chip); });
+            const facesGrid = document.getElementById('faces-grid'); 
+            const decorGrid = document.getElementById('decor-grid');
+            
+            if (facesGrid) {
+                facesGrid.innerHTML = '';
+                activeFaces.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, true, 'face'); facesGrid.appendChild(chip); });
+                disabledFaces.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip disabled'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, false, 'face'); facesGrid.appendChild(chip); });
+            }
+            
+            if (decorGrid) {
+                decorGrid.innerHTML = '';
+                activeDecor.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, true, 'decor'); decorGrid.appendChild(chip); });
+                disabledDecor.forEach(emoji => { const chip = document.createElement('div'); chip.className = 'emoji-chip disabled'; chip.textContent = emoji; chip.onclick = () => toggleEmojiStatus(emoji, false, 'decor'); decorGrid.appendChild(chip); });
+            }
         }
-        function toggleEmojiStatus(emoji, isActive) {
+        function toggleEmojiStatus(emoji, isActive, type) {
             triggerHaptic(10);
-            if (currentSettingsTab === 'faces') { if (isActive) { activeFaces = activeFaces.filter(e => e !== emoji); if (!disabledFaces.includes(emoji)) disabledFaces.push(emoji); } else { disabledFaces = disabledFaces.filter(e => e !== emoji); if (!activeFaces.includes(emoji)) activeFaces.push(emoji); } } 
+            if (type === 'face') { if (isActive) { activeFaces = activeFaces.filter(e => e !== emoji); if (!disabledFaces.includes(emoji)) disabledFaces.push(emoji); } else { disabledFaces = disabledFaces.filter(e => e !== emoji); if (!activeFaces.includes(emoji)) activeFaces.push(emoji); } } 
             else { if (isActive) { activeDecor = activeDecor.filter(e => e !== emoji); if (!disabledDecor.includes(emoji)) disabledDecor.push(emoji); } else { disabledDecor = disabledDecor.filter(e => e !== emoji); if (!activeDecor.includes(emoji)) activeDecor.push(emoji); } }
             saveAllSettings(); renderEmojiGrid();
         }
-        function addNewEmoji() {
-            const input = document.getElementById('new-emoji-input'); const val = input.value.trim(); if (!val) return; triggerHaptic(10);
-            if (currentSettingsTab === 'faces') { if (!activeFaces.includes(val) && !disabledFaces.includes(val)) activeFaces.push(val); } else { if (!activeDecor.includes(val) && !disabledDecor.includes(val)) activeDecor.push(val); }
+        function addNewEmoji(type) {
+            const inputId = type === 'face' ? 'new-face-input' : 'new-decor-input';
+            const input = document.getElementById(inputId); const val = input.value.trim(); if (!val) return; triggerHaptic(10);
+            if (type === 'face') { if (!activeFaces.includes(val) && !disabledFaces.includes(val)) activeFaces.push(val); } else { if (!activeDecor.includes(val) && !disabledDecor.includes(val)) activeDecor.push(val); }
             input.value = ''; saveAllSettings(); renderEmojiGrid(); unlockAchievement("custom_emoji");
         }
-        function resetEmojiList() { if(confirm("確定要恢復預設的表情符號列表嗎？")) { triggerHaptic(10); if (currentSettingsTab === 'faces') { activeFaces = [...defaultFaces]; disabledFaces = []; } else { activeDecor = [...defaultDecor]; disabledDecor = []; } saveAllSettings(); renderEmojiGrid(); showToast("🔄 已恢復預設列表"); } }
+        function resetEmojiList() { if(confirm("確定要恢復預設的表情符號列表嗎？")) { triggerHaptic(10); activeFaces = [...defaultFaces]; disabledFaces = []; activeDecor = [...defaultDecor]; disabledDecor = []; saveAllSettings(); renderEmojiGrid(); showToast("🔄 已恢復預設列表"); } }
 
         function updateEmbeddedStarState() {
             const btn = document.getElementById('embedded-star-btn'); 
@@ -1859,9 +1911,9 @@
             if (currentMain === 'featured_custom') {
                 if (savedSubCategories.length === 0) { 
                     btn.classList.add('disabled'); 
-                    btn.textContent = '⭐ 加入';
+                    btn.innerHTML = '<svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 加入';
                 } else { 
-                    btn.textContent = '💔 移除'; 
+                    btn.innerHTML = '<svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78zM5.12 6.73a3.5 3.5 0 0 1 4.95 0L12 8.66l1.93-1.93a3.5 3.5 0 0 1 4.95 4.95L12 18.52l-6.88-6.84a3.5 3.5 0 0 1 0-4.95z"/></svg> 移除'; 
                     btn.classList.remove('disabled'); 
                     btn.onclick = () => removeCurrentFromFeatured(); 
                 } 
@@ -1870,17 +1922,17 @@
             
             if (!currentMain || !currentSub) { 
                 btn.classList.add('disabled'); 
-                btn.textContent = '⭐ 加入'; 
+                btn.innerHTML = '<svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 加入'; 
                 btn.onclick = null; 
             } else { 
                 btn.classList.remove('disabled'); 
                 const exists = savedSubCategories.some(item => item.main === currentMain && item.sub === currentSub);
                 if (exists) { 
-                    btn.textContent = '💔 移除'; 
+                    btn.innerHTML = '<svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78zM5.12 6.73a3.5 3.5 0 0 1 4.95 0L12 8.66l1.93-1.93a3.5 3.5 0 0 1 4.95 4.95L12 18.52l-6.88-6.84a3.5 3.5 0 0 1 0-4.95z"/></svg> 移除'; 
                     btn.classList.add('active');
                     btn.onclick = () => toggleSavedSubCategory(); 
                 } else { 
-                    btn.textContent = '⭐ 加入'; 
+                    btn.innerHTML = '<svg class="icon-svg" style="width:1em;height:1em;" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg> 加入'; 
                     btn.classList.remove('active');
                     btn.onclick = () => toggleSavedSubCategory(); 
                 }

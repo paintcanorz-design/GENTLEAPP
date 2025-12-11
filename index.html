@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>紳士AI讚美產生器 (v11.1 Integrated)</title>
+    <title>紳士AI讚美產生器 (v11.3 SVG Edition)</title>
     <meta name="theme-color" content="#121212">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,9 +16,13 @@
         :root { 
             /* 基礎配色 */
             --primary: #007AFF; --secondary: #5AC8FA; --bg: #F2F2F7; --card: #FFFFFF; --text: #000000; --sub-text: #8E8E93; --border: rgba(0, 0, 0, 0.08); --hover: #F2F2F7; --active-bg: #007AFF; --active-text: #ffffff; --subtle-active-bg: #E5E5EA; --subtle-active-text: #000000; --section-bg: #F9F9F9; --result-bg: #FFFFFF; --result-right-bg: rgba(0, 0, 0, 0.03); --result-right-text: #8E8E93; --result-border: rgba(0, 0, 0, 0.05); --emo-bg: rgba(0, 122, 255, 0.1); --emo-text: #007AFF; --emo-border: transparent; --ad-bg-start: #FFFFFF; --ad-bg-end: #F2F2F7; --skeleton-base: #E5E5EA; --skeleton-highlight: #F2F2F7; --modal-bg: rgba(255, 255, 255, 0.92); --modal-overlay: rgba(0, 0, 0, 0.4); --btn-regen: #007AFF; --btn-emoji: #34C759; --fav-color: #FFCC00; --speak-color: #FF2D55; --delete-color: #FF3B30; --setting-group-bg: #FFFFFF; --fs-jp: 0.95rem; --fs-cn: 0.85rem; --ext-header-bg: #E0F2FE; --ext-header-text: #007AFF; --xp-bar-bg: #E5E5EA; --xp-bar-fill: #80BDFF; --ad-iframe-bg: #FFFFFF; --achieve-bg: #FFF9E6; --achieve-border: rgba(255, 204, 0, 0.2); --achieve-icon: #FF9500; --shadow-sm: none; --shadow-md: none; --btn-border-light: transparent; --btn-border-dark: rgba(0,0,0,0.1);
+            --segment-bg: #E5E5EA;
         }
         
-        html.dark-mode { --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --sub-text: #98989D; --border: rgba(255, 255, 255, 0.1); --hover: #2C2C2E; --active-bg: #0A84FF; --active-text: #FFFFFF; --subtle-active-bg: #3A3A3C; --subtle-active-text: #FFFFFF; --section-bg: #2C2C2E; --result-bg: #1C1C1E; --result-right-bg: rgba(255, 255, 255, 0.05); --result-right-text: #98989D; --result-border: rgba(255, 255, 255, 0.08); --emo-bg: rgba(10, 132, 255, 0.15); --emo-text: #64D2FF; --emo-border: transparent; --ad-bg-start: #1C1C1E; --ad-bg-end: #000000; --skeleton-base: #2C2C2E; --skeleton-highlight: #3A3A3C; --modal-bg: rgba(30, 30, 30, 0.92); --modal-overlay: rgba(0, 0, 0, 0.6); --setting-group-bg: #1C1C1E; --ext-header-bg: #102A43; --ext-header-text: #64D2FF; --xp-bar-bg: #3A3A3C; --ad-iframe-bg: #1C1C1E; --achieve-bg: #3F2804; --achieve-border: #5C3A05; --achieve-icon: #FFD60A; --shadow-sm: none; --shadow-md: none; --btn-border-light: rgba(255,255,255,0.15); --btn-border-dark: transparent; }
+        html.dark-mode { 
+            --bg: #000000; --card: #1C1C1E; --text: #FFFFFF; --sub-text: #98989D; --border: rgba(255, 255, 255, 0.1); --hover: #2C2C2E; --active-bg: #0A84FF; --active-text: #FFFFFF; --subtle-active-bg: #3A3A3C; --subtle-active-text: #FFFFFF; --section-bg: #2C2C2E; --result-bg: #1C1C1E; --result-right-bg: rgba(255, 255, 255, 0.05); --result-right-text: #98989D; --result-border: rgba(255, 255, 255, 0.08); --emo-bg: rgba(10, 132, 255, 0.15); --emo-text: #64D2FF; --emo-border: transparent; --ad-bg-start: #1C1C1E; --ad-bg-end: #000000; --skeleton-base: #2C2C2E; --skeleton-highlight: #3A3A3C; --modal-bg: rgba(30, 30, 30, 0.92); --modal-overlay: rgba(0, 0, 0, 0.6); --setting-group-bg: #1C1C1E; --ext-header-bg: #102A43; --ext-header-text: #64D2FF; --xp-bar-bg: #3A3A3C; --ad-iframe-bg: #1C1C1E; --achieve-bg: #3F2804; --achieve-border: #5C3A05; --achieve-icon: #FFD60A; --shadow-sm: none; --shadow-md: none; --btn-border-light: rgba(255,255,255,0.15); --btn-border-dark: transparent; 
+            --segment-bg: #000000;
+        }
         html.dark-mode .custom-ai-input { color: #FFFFFF !important; background-color: var(--card); }
         html.dark-mode .custom-ai-input::placeholder { color: rgba(255, 255, 255, 0.5); }
 
@@ -42,7 +46,7 @@
         html.theme-colorful .tab-btn.active { background: linear-gradient(135deg, #AF52DE, #FF2D55); border: none; color: white; box-shadow: none; }
         html.theme-colorful .theme-btn.active { background: linear-gradient(135deg, #34C759, #007AFF); border: none; color: white; box-shadow: none; }
         html.theme-colorful .welcome-header-pill { background: linear-gradient(90deg, #FF2D55, #AF52DE); }
-        html.theme-colorful .control-option.active { border: 2px solid #AF52DE !important; color: #AF52DE !important; background: transparent !important; }
+        html.theme-colorful .control-option.active { color: #AF52DE !important; border-color: transparent !important; }
 
         html.theme-mono { filter: grayscale(100%); --primary: #333; --secondary: #666; --btn-regen: #333; --btn-emoji: #333; --active-bg: #333; --emo-text: #000; --emo-bg: #E5E5EA; --xp-bar-fill: #BDBDBD; --fav-color: #666; --bg: #F2F2F7; --card: #FFF; }
         html.dark-mode.theme-mono { --bg: #000; --card: #1C1C1E; --primary: #8E8E93; --btn-regen: #3A3A3C; --btn-emoji: #3A3A3C; --active-bg: #3A3A3C; --emo-text: #FFF; --emo-bg: #2C2C2E; --xp-bar-fill: #616161; --fav-color: #8E8E93; }
@@ -90,6 +94,7 @@
         @keyframes pressBounce { 0% { transform: scale(1); } 50% { transform: scale(0.92); } 100% { transform: scale(1); } }
         @keyframes trophyPop { 0% { transform: scale(0); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
         @keyframes fadeOutUp { 0% { opacity: 1; margin-top: -10px; } 100% { opacity: 0; margin-top: -40px; } }
+        @keyframes pulseText { 0% { opacity: 0.7; } 50% { opacity: 1; } 100% { opacity: 0.7; } }
 
         .container { max-width: 900px; margin: 0 auto; background: var(--card); min-height: auto; height: auto; padding: 10px 12px 50px 12px; box-sizing: border-box; display: flex; flex-direction: column; transition: background-color 0.3s, box-shadow 0.3s; position: relative; }
         @media (min-width: 600px) { body { padding: 30px; } .container { border-radius: 48px; box-shadow: var(--shadow-md); padding: 40px 30px; } }
@@ -154,7 +159,7 @@
         .settings-visual { width: 38px; height: 38px; background-color: var(--section-bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; color: var(--text); transition: transform 0.2s, background-color 0.2s; box-shadow: var(--shadow-sm); }
         .settings-hitbox.active .settings-visual { transform: scale(0.9) translateY(-50%); background-color: var(--hover); }
 
-        .xp-container { margin-top: 16px; margin-bottom: 6px; padding: 0 4px; cursor: pointer; user-select: none; }
+        .xp-container { margin-top: 24px; margin-bottom: 6px; padding: 0 4px; cursor: pointer; user-select: none; }
         .xp-info { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 4px; font-size: 0.75rem; font-weight: 600; color: var(--sub-text); margin-top: 0; }
         .xp-title { color: var(--sub-text); font-weight: 700; display: flex; align-items: center; gap: 6px; }
         .xp-badge { background: transparent; color: var(--sub-text); border: 1px solid var(--sub-text); padding: 2px 8px; border-radius: 20px; font-size: 0.65rem; margin-right: 4px; font-weight: 700; }
@@ -186,12 +191,28 @@
         
         .dict-arrow { transition: transform 0.3s ease; display: inline-block; font-size: 0.8rem; margin-left: 6px; opacity: 0.6; }
         
-        .control-option { flex: 1; text-align: center; padding: 8px 0; font-size: 0.82rem; cursor: pointer; border-radius: 50px; color: var(--sub-text); font-weight: 600; transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); white-space: nowrap; overflow: hidden; border: 2px solid transparent; }
+        .control-option { 
+            flex: 1; 
+            text-align: center; 
+            padding: 8px 0; 
+            font-size: 0.82rem; 
+            cursor: pointer; 
+            border-radius: 8px; 
+            color: var(--sub-text); 
+            font-weight: 500; 
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            white-space: nowrap; 
+            overflow: hidden; 
+            border: none;
+            background: transparent;
+            margin: 0;
+        }
         .control-option.active { 
-            background-color: transparent; 
-            color: var(--primary); 
-            border: 2px solid var(--primary);
-            box-shadow: none;
+            background-color: var(--card); 
+            color: var(--text); 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            font-weight: 700;
+            border: none;
         }
 
         .category-btn { 
@@ -457,26 +478,48 @@
             padding-top: 5px;
         }
 
-        /* 緊湊化：減少 margin */
-        .tips-text {
-            text-align: center;
+        /* Status Bar Style */
+        .status-tips-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin: 12px 0 6px 0;
+            padding: 0 8px;
+            box-sizing: border-box;
+        }
+
+        .status-indicator {
             font-size: 0.75rem;
             color: var(--primary);
-            margin: 10px 0 6px 0;
-            width: 100%;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             opacity: 0.9;
-            transition: color 0.4s;
-            white-space: nowrap; 
-            overflow: hidden;   
-            text-overflow: clip;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status-indicator.pulsing {
+            animation: pulseText 1.5s infinite;
+        }
+
+        .tips-text-right {
+            font-size: 0.65rem;
+            color: var(--sub-text);
+            text-align: right;
+            opacity: 0.7;
+            margin-left: 10px;
+            font-weight: 500;
+            flex-shrink: 0;
         }
 
         @media (max-width: 450px) {
-            .tips-text {
-                font-size: 0.6rem; 
-                letter-spacing: -0.02em;
-            }
+            .status-indicator { font-size: 0.7rem; }
+            .tips-text-right { font-size: 0.6rem; max-width: 140px; }
         }
 
         .result-area {
@@ -578,13 +621,15 @@
         }
 
         .control-group {
-            background-color: transparent;
-            padding: 0;
+            background-color: var(--segment-bg);
+            padding: 4px;
             display: flex;
-            gap: 4px;
+            gap: 0;
             min-height: 36px;
             width: 100%;
             margin-top: 0;
+            border-radius: 12px;
+            box-sizing: border-box;
         }
 
         .hidden {
@@ -604,6 +649,24 @@
             transform: rotate(180deg);
         }
 
+        .icon-svg {
+            width: 1.2em;
+            height: 1.2em;
+            fill: currentColor;
+            vertical-align: middle;
+        }
+        
+        .action-icon svg {
+            width: 1.4em;
+            height: 1.4em;
+        }
+
+        .settings-visual svg {
+            width: 1.4em;
+            height: 1.4em;
+            fill: var(--text);
+        }
+
     </style>
 </head>
 <body>
@@ -612,7 +675,9 @@
         <div class="header-row">
             <h1>🎩 紳士ＡＩ讚美產生器</h1>
             <div class="settings-hitbox" onclick="openSettings(event)">
-                <div class="settings-visual">⚙️</div>
+                <div class="settings-visual">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </div>
             </div>
         </div>
 
@@ -620,7 +685,9 @@
         <div class="group-section">
             <!-- 第一行：預設辭庫 + 精選按鈕 -->
             <div class="panel-header" onclick="toggleDictionarySection()">
-                <span>📂 預設辭庫 <span id="dict-arrow" class="dict-arrow">▼</span></span>
+                <span>📂 預設辭庫 <span id="dict-arrow" class="dict-arrow">
+                    <svg class="icon-svg" style="width:0.8em; height:0.8em;" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+                </span></span>
                 <button id="btn-show-featured" class="header-small-btn touch-feedback hidden" onclick="event.stopPropagation(); selectFeaturedCategory(this)">⭐ 精選</button>
             </div>
             
@@ -657,16 +724,28 @@
             </div>
         </div>
 
-        <div class="tips-text">💡 點選語句可複製，按鈕可刷新、修改表符以及使用AI服務</div>
+        <div class="status-tips-container">
+            <div id="status-indicator" class="status-indicator">請選擇預設辭庫或AI生成</div>
+            <div class="tips-text-right">💡 點選語句可複製，按鈕可刷新</div>
+        </div>
 
         <div id="result-area" class="result-area" style="margin-top: 0; min-height: auto;"></div>
         
         <!-- 整合後的控制面板：包含換一批與表情選擇 -->
         <div class="unified-control-panel">
             <div class="action-row">
-                <div id="regen-btn" class="action-btn btn-regen disabled touch-feedback" onclick="generatePhrases(false, event)">🔄 換一批</div>
-                <div id="emoji-reroll-btn" class="action-btn btn-emoji-reroll disabled touch-feedback" onclick="rerollEmojisOnly(event)">🎲 換表符</div>
-                <div id="ai-batch-btn" class="action-btn btn-ai-batch disabled touch-feedback" onclick="requestBatchAiRewrite(event)">✨ AI 改寫</div>
+                <div id="regen-btn" class="action-btn btn-regen disabled touch-feedback" onclick="generatePhrases(false, event)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    換一批
+                </div>
+                <div id="emoji-reroll-btn" class="action-btn btn-emoji-reroll disabled touch-feedback" onclick="rerollEmojisOnly(event)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7.5 18c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5S10 14.12 10 15.5 8.88 18 7.5 18zm0-9C6.12 9 5 7.88 5 6.5S6.12 4 7.5 4 10 5.12 10 6.5 8.88 9 7.5 9zm4.5 4.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5S14.5 9.62 14.5 11 13.38 13.5 12 13.5zm4.5 4.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5zm0-9c-1.38 0-2.5-1.12-2.5-2.5S15.12 4 16.5 4 19 5.12 19 6.5 17.88 9 16.5 9z"/></svg>
+                    換表符
+                </div>
+                <div id="ai-batch-btn" class="action-btn btn-ai-batch disabled touch-feedback" onclick="requestBatchAiRewrite(event)">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
+                    AI 改寫
+                </div>
             </div>
 
             <div class="control-group">
@@ -840,7 +919,9 @@
                     <div class="setting-row"><div class="setting-label">顯示發聲按鈕</div><label class="switch"><input type="checkbox" id="toggle-speak" checked onchange="toggleSetting('showSpeak', this.checked)"><span class="slider"></span></label></div>
                     <div class="setting-row"><div class="setting-label">語速 (Speed)</div><div class="setting-control"><input type="range" min="0.5" max="1.5" step="0.1" value="1.1" id="rate-slider" oninput="updateVoiceSetting('rate', this.value)"></div></div>
                     <div class="setting-row"><div class="setting-label">音調 (Pitch)</div><div class="setting-control"><input type="range" min="0.5" max="1.5" step="0.1" value="1.0" id="pitch-slider" oninput="updateVoiceSetting('pitch', this.value)"></div></div>
-                    <div class="setting-row" style="justify-content: center;"><button class="font-btn touch-feedback" onclick="testVoice()">🔊 試聽語音</button></div>
+                    <div class="setting-row" style="justify-content: center;"><button class="font-btn touch-feedback" onclick="testVoice()">
+                        <svg class="icon-svg" style="width:1em;height:1em;margin-right:4px;" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg> 試聽語音
+                    </button></div>
                 </div>
                 <a href="https://twitter.com/intent/tweet?text=%E6%88%91%E7%99%BC%E7%8F%BE%E4%BA%86%E4%B8%80%E5%80%8B%E8%B6%85%E5%A5%BD%E7%94%A8%E7%9A%84%E7%B4%B3%E5%A3%AB%E8%AE%9A%E7%BE%8E%E7%94%A2%E7%94%9F%E5%99%A8+%F0%9F%A4%A4%0A%0A%23%E7%B4%B3%E5%A3%AB%E8%AE%9A%E7%BE%8E%E7%94%A2%E7%94%9F%E5%99%A8+%23%E7%B4%B3%E5%A3%AB%E5%BF%85%E5%82%99+%23%E7%BC%B6%E5%AD%90%E7%89%A7%E5%A0%B4&url=https%3A%2F%2Fwww.paintcanfarm.com%2Ftool-praise-generator" target="_blank" class="share-x-btn touch-feedback"><span>🐦 分享此工具到 X</span></a>
             </div>
@@ -998,6 +1079,28 @@
             }
         }
 
+        function updateStatusUI(type, param = "") {
+            const statusIndicator = document.getElementById('status-indicator');
+            statusIndicator.classList.remove('pulsing');
+            
+            if (type === 'idle') {
+                statusIndicator.innerHTML = '請選擇預設辭庫或AI生成';
+            } else if (type === 'selected') {
+                statusIndicator.innerHTML = `📍 ${param}`;
+            } else if (type === 'reply_gen') {
+                statusIndicator.innerHTML = '✨ 回覆生成中...';
+                statusIndicator.classList.add('pulsing');
+            } else if (type === 'keyword_gen') {
+                statusIndicator.innerHTML = '✨ 關鍵語句生成中...';
+                statusIndicator.classList.add('pulsing');
+            } else if (type === 'rewriting') {
+                statusIndicator.innerHTML = `✨ ${param} + AI 改寫中...`;
+                statusIndicator.classList.add('pulsing');
+            } else if (type === 'done_ai') {
+                statusIndicator.innerHTML = `✅ AI 生成完成`;
+            }
+        }
+
         async function init() {
             initTouchFeedback();
             initDarkMode(); 
@@ -1056,6 +1159,7 @@
                 if (data.type === 'BATCH_AI_RESULT') {
                     const { results } = data;
                     resetAiButton(); 
+                    updateStatusUI('done_ai');
 
                     if (results && results.error === 'RATE_LIMIT') {
                         showToast("⏳ 系統忙碌中，請稍後再試");
@@ -1109,8 +1213,14 @@
                                 if (speakBtn) speakBtn.setAttribute('onclick', `speakText('${newFullText.replace(/'/g, "\\'")}')`);
                                 if (starBtn) {
                                     starBtn.onclick = function() { toggleFavorite(newFullText, this); };
-                                    if (favorites.includes(newFullText)) { starBtn.classList.add('active'); starBtn.textContent = '★'; } 
-                                    else { starBtn.classList.remove('active'); starBtn.textContent = '☆'; }
+                                    if (favorites.includes(newFullText)) { starBtn.classList.add('active'); 
+                                    // SVG Toggle
+                                    starBtn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+                                    } 
+                                    else { starBtn.classList.remove('active'); 
+                                    // SVG Toggle
+                                    starBtn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.01 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>';
+                                    }
                                 }
                             }
                         });
@@ -1194,7 +1304,7 @@
             window._aiCount++;
 
             aiBtn.classList.add('disabled');
-            aiBtn.innerHTML = '<span>✨</span> 思考中...';
+            aiBtn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg> 思考中...';
             aiBtn.style.opacity = "0.7";
             triggerHaptic(10);
 
@@ -1225,6 +1335,10 @@
                 }
             }
 
+            // Disable Refresh
+            regenBtn.classList.add('disabled');
+            updateStatusUI('rewriting', contextSub);
+
             window.parent.postMessage({
                 type: 'REQUEST_BATCH_AI',
                 phrases: phrasesToRewrite,
@@ -1242,7 +1356,7 @@
             const aiBtn = document.getElementById('ai-batch-btn');
             if (aiBtn) {
                 aiBtn.classList.remove('disabled');
-                aiBtn.innerHTML = '✨ AI 改寫';
+                aiBtn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg> AI 改寫';
                 aiBtn.style.opacity = "1";
             }
         }
@@ -1714,8 +1828,12 @@
         function loadFavorites() { const saved = localStorage.getItem('favorites'); if (saved) { try { favorites = JSON.parse(saved); } catch (e) { favorites = []; } } }
         function toggleFavorite(text, btn) {
             triggerHaptic(10); const index = favorites.indexOf(text);
-            if (index === -1) { if (favorites.length >= 24) { alert("我的最愛已滿 (24則)，請先刪除舊的！"); return; } favorites.push(text); btn.classList.add('active'); btn.textContent = '★'; addXP(XP_FAV); unlockAchievement("first_fav"); if (favorites.length >= 24) unlockAchievement("fav_full"); } 
-            else { favorites.splice(index, 1); btn.classList.remove('active'); btn.textContent = '☆'; unlockAchievement("fav_del"); }
+            if (index === -1) { if (favorites.length >= 24) { alert("我的最愛已滿 (24則)，請先刪除舊的！"); return; } favorites.push(text); btn.classList.add('active'); 
+            btn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+            addXP(XP_FAV); unlockAchievement("first_fav"); if (favorites.length >= 24) unlockAchievement("fav_full"); } 
+            else { favorites.splice(index, 1); btn.classList.remove('active'); 
+            btn.innerHTML = '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.01 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>';
+            unlockAchievement("fav_del"); }
             localStorage.setItem('favorites', JSON.stringify(favorites)); syncToWix(); if(currentTab === 'fav') renderHistoryList();
         }
         function removeFavorite(text) { triggerHaptic(10); const index = favorites.indexOf(text); if (index !== -1) { favorites.splice(index, 1); localStorage.setItem('favorites', JSON.stringify(favorites)); syncToWix(); renderHistoryList(); if(currentDisplayState.length > 0) renderFromState(false); unlockAchievement("fav_del"); } }
@@ -1762,6 +1880,10 @@
             
             renderFeaturedSubGrid(); 
             updateEmbeddedStarState(); 
+            
+            // Enable Regen
+            regenBtn.classList.remove('disabled');
+            updateStatusUI('selected', '精選收藏');
         }
         
         function renderFeaturedSubGrid() { 
@@ -1777,7 +1899,14 @@
         }
         
         function selectSubCategoryFromFeatured(item, btnElement) { 
-            currentMain = 'featured_custom'; currentSub = item.sub; seenIndices.clear(); document.querySelectorAll('#sub-grid .category-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); updateEmbeddedStarState(); regenBtn.textContent = "🔄 換一批"; regenBtn.onclick = (e) => { triggerHaptic(10); generatePhrases(false, e); }; 
+            currentMain = 'featured_custom'; currentSub = item.sub; seenIndices.clear(); document.querySelectorAll('#sub-grid .category-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); updateEmbeddedStarState(); 
+            
+            // Enable Regen
+            regenBtn.classList.remove('disabled'); 
+            regenBtn.onclick = (e) => { triggerHaptic(10); generatePhrases(false, e); }; 
+            
+            updateStatusUI('selected', item.label);
+
             const originalMain = item.main; const originalSub = item.sub; const targetData = database[originalMain].subs[originalSub]; 
             if(targetData) { const count = Math.min(targetData.phrases.length, appSettings.resultCount); const selectedPhrases = getWeightedRandom(targetData.phrases, count); currentDisplayState = selectedPhrases.map(phrase => ({ base: phrase, emoji: generateEmojiCombo(), specificPos: Math.random() < 0.5 ? 1 : 2 })); renderFromState(true); } 
         }
@@ -1790,6 +1919,11 @@
             document.getElementById('btn-show-featured').classList.remove('active');
             
             btnElement.classList.add('active'); 
+            
+            // Disable Regen until sub selected
+            regenBtn.classList.add('disabled');
+            updateStatusUI('idle');
+
             // 移除 subGrid.appendChild(createStarButton());
             
             const subData = database[key].subs; 
@@ -1802,7 +1936,18 @@
             updateActionButtonsState(); updateEmbeddedStarState(); 
         }
         
-        function selectSubCategory(subKey, btnElement) { currentSub = subKey; seenIndices.clear(); document.querySelectorAll('#sub-grid .category-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); updateEmbeddedStarState(); regenBtn.textContent = "🔄 換一批"; regenBtn.onclick = (e) => { triggerHaptic(10); generatePhrases(false, e); }; generatePhrases(true); }
+        function selectSubCategory(subKey, btnElement) { 
+            currentSub = subKey; seenIndices.clear(); document.querySelectorAll('#sub-grid .category-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); updateEmbeddedStarState(); 
+            
+            // Enable Regen
+            regenBtn.classList.remove('disabled'); 
+            regenBtn.onclick = (e) => { triggerHaptic(10); generatePhrases(false, e); }; 
+            
+            const subLabel = database[currentMain].subs[subKey].label;
+            updateStatusUI('selected', subLabel);
+
+            generatePhrases(true); 
+        }
         
         function setEmojiLevel(level, element) { 
             triggerHaptic(10); emojiLevel = level; element.parentNode.querySelectorAll('.control-option').forEach(el => el.classList.remove('active')); element.classList.add('active'); 
@@ -1815,7 +1960,8 @@
             const emojiBtn = document.getElementById('emoji-reroll-btn'); // 修改2: 狀態連動
             
             if (hasPhrases) { 
-                regenBtn.classList.remove('disabled'); 
+                // Regen state is controlled by selection now
+                // regenBtn.classList.remove('disabled'); 
                 if(emojiBtn) emojiBtn.classList.remove('disabled');
                 aiBatchBtn.classList.remove('disabled'); 
             } else { 
@@ -1836,7 +1982,7 @@
             subGrid.innerHTML = ''; document.querySelector('.sub-placeholder').style.display = 'block'; document.querySelector('.sub-placeholder').textContent = `🔍 搜尋結果：${query}`; const matches = []; Object.values(database).forEach(main => { Object.values(main.subs).forEach(sub => { sub.phrases.forEach(p => { if (p.jp.toLowerCase().includes(query) || p.cn.toLowerCase().includes(query)) matches.push(p); }); }); }); if (matches.length === 0) { alert("找不到相關結果，請換個關鍵字試試！"); return; } currentSearchMatches = matches; refreshSearch(true); 
         }
         function getWeightedRandom(sourceArr, count) { let pool = sourceArr.map((item, index) => ({ item: item, index: index, weight: seenIndices.has(index) ? 25 : 100 })); let result = []; for (let i = 0; i < count; i++) { if (pool.length === 0) break; let totalWeight = pool.reduce((a, b) => a + b.weight, 0), r = Math.random() * totalWeight, selectedIdx = -1; for (let j = 0; j < pool.length; j++) { r -= pool[j].weight; if (r <= 0) { selectedIdx = j; break; } } if (selectedIdx === -1) selectedIdx = pool.length - 1; result.push(pool[selectedIdx].item); seenIndices.add(pool[selectedIdx].index); pool.splice(selectedIdx, 1); } return result; }
-        function refreshSearch(animate = true) { if (currentSearchMatches.length === 0) return; const count = Math.min(currentSearchMatches.length, appSettings.resultCount); const selectedPhrases = getWeightedRandom(currentSearchMatches, count); currentDisplayState = selectedPhrases.map(phrase => ({ base: phrase, emoji: generateEmojiCombo(), specificPos: Math.random() < 0.5 ? 1 : 2 })); renderFromState(animate); regenBtn.style.display = 'flex'; regenBtn.textContent = "🔄 換一批搜尋結果"; regenBtn.onclick = (e) => { triggerHaptic(10); refreshSearch(false); if(e) createParticles(e.clientX, e.clientY); }; }
+        function refreshSearch(animate = true) { if (currentSearchMatches.length === 0) return; const count = Math.min(currentSearchMatches.length, appSettings.resultCount); const selectedPhrases = getWeightedRandom(currentSearchMatches, count); currentDisplayState = selectedPhrases.map(phrase => ({ base: phrase, emoji: generateEmojiCombo(), specificPos: Math.random() < 0.5 ? 1 : 2 })); renderFromState(animate); regenBtn.classList.remove('disabled'); regenBtn.onclick = (e) => { triggerHaptic(10); refreshSearch(false); if(e) createParticles(e.clientX, e.clientY); }; }
         
         function generateEmojiCombo() {
             if (emojiLevel === 'kaomoji') return kaomojiList.length > 0 ? " " + kaomojiList[Math.floor(Math.random() * kaomojiList.length)] : "";
@@ -1865,7 +2011,7 @@
                     renderFromState(animate); 
                 } 
             } 
-            regenBtn.textContent = "🔄 換一批"; 
+            regenBtn.classList.remove('disabled'); 
             regenBtn.onclick = (e) => { 
                 if (currentMain === "自訂生成" && currentSub === "回覆生成") {
                     handleReplyGen();
@@ -1902,11 +2048,18 @@
                 if (animate) { div.classList.add('animate-in'); div.style.animationDelay = `${index * 0.05}s`; } else div.classList.add('fade-in');
                 const isFav = favorites.includes(jpCopy); const starClass = isFav ? 'active' : ''; const starChar = isFav ? '★' : '☆';
                 
+                // SVG logic for star
+                const starSVG = isFav ? 
+                    '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>' :
+                    '<svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 9.24l-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03L22 9.24zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.01 4.38.38-3.32 2.88 1 4.28L12 15.4z"/></svg>';
+
                 div.innerHTML = `
                     <div class="result-left" id="text-${index}" onclick="handleResultClick('${jpCopy.replace(/'/g, "\\'")}', event)">${jpDisplay}</div>
                     <div class="result-actions">
-                        <div class="action-icon icon-speak" id="speak-${index}" onclick="speakText('${jpCopy.replace(/'/g, "\\'")}')">🔊</div>
-                        <div class="action-icon icon-star ${starClass}" id="star-${index}" onclick="toggleFavorite('${jpCopy.replace(/'/g, "\\'")}', this)">${starChar}</div>
+                        <div class="action-icon icon-speak" id="speak-${index}" onclick="speakText('${jpCopy.replace(/'/g, "\\'")}')">
+                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        </div>
+                        <div class="action-icon icon-star ${starClass}" id="star-${index}" onclick="toggleFavorite('${jpCopy.replace(/'/g, "\\'")}', this)">${starSVG}</div>
                     </div>
                     <div class="result-right" id="cn-${index}">${cnDisplay}</div>
                 `;
@@ -2009,11 +2162,9 @@
             
             renderFromState(true);
             
-            // 重要修改：生成時，讓 Regen 按鈕 Disabled 但不改變文字
-            regenBtn.style.display = 'flex'; 
-            regenBtn.classList.remove('hidden');
-            regenBtn.classList.add('disabled'); // 變灰
-            regenBtn.innerHTML = "🔄 換一批"; // 保持文字
+            // Disable Refresh
+            regenBtn.classList.add('disabled'); 
+            updateStatusUI('keyword_gen');
             
             const phrasesToRewrite = new Array(count).fill(val);
 
@@ -2081,11 +2232,9 @@
             
             renderFromState(true);
             
-            // 重要修改：生成時，讓 Regen 按鈕 Disabled 但不改變文字
-            regenBtn.style.display = 'flex'; 
-            regenBtn.classList.remove('hidden');
-            regenBtn.classList.add('disabled'); // 變灰
-            regenBtn.innerHTML = "🔄 換一批"; // 保持文字
+            // Disable Refresh
+            regenBtn.classList.add('disabled'); 
+            updateStatusUI('reply_gen');
 
             const phrasesToRewrite = new Array(count).fill(userContent);
 
@@ -2118,11 +2267,7 @@
                 replyBtn.classList.remove('disabled');
                 replyBtn.innerHTML = 'AI 回覆';
             }
-            
-            // AI 完成後，解鎖 Regen 按鈕 (僅在非自訂生成模式下)
-            if (currentMain !== "自訂生成") {
-                regenBtn.classList.remove('disabled');
-            }
+            // Do NOT re-enable Regen automatically
         };
 
         init();

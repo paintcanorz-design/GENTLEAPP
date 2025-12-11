@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gentleman AI Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: 'var(--primary)',
+              secondary: 'var(--secondary)',
+              bg: 'var(--bg)',
+              card: 'var(--card)',
+              text: 'var(--text)',
+              'sub-text': 'var(--sub-text)',
+              border: 'var(--border)',
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out',
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'bounce-small': 'bounceSmall 0.3s',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              bounceSmall: {
+                '0%, 100%': { transform: 'scale(1)' },
+                '50%': { transform: 'scale(0.95)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --primary: #007AFF;
+        --secondary: #5AC8FA;
+        --bg: #F2F2F7;
+        --card: #FFFFFF;
+        --text: #000000;
+        --sub-text: #8E8E93;
+        --border: rgba(0, 0, 0, 0.08);
+        --active-bg: #007AFF;
+        --active-text: #ffffff;
+      }
+
+      html.dark-mode {
+        --bg: #000000;
+        --card: #1C1C1E;
+        --text: #FFFFFF;
+        --sub-text: #98989D;
+        --border: rgba(255, 255, 255, 0.1);
+        --primary: #0A84FF;
+      }
+
+      /* Themes */
+      html.theme-pink { --primary: #FB7DA8; --secondary: #FFB7CE; }
+      html.dark-mode.theme-pink { --primary: #FF85B3; }
+      
+      html.theme-teal { --primary: #008ba3; --secondary: #5AC8FA; }
+      html.theme-silver { --primary: #636366; --secondary: #AEAEB2; --bg: #F2F2F7; }
+      html.dark-mode.theme-silver { --bg: #000000; --primary: #98989D; }
+      
+      html.theme-gold { --primary: #F59E0B; --secondary: #FFCC00; --bg: #FFF9E6; }
+      html.dark-mode.theme-gold { --bg: #000000; --primary: #FFD60A; }
+      
+      html.theme-orange { --primary: #F37021; --secondary: #FF9F55; --bg: #FFF5EE; }
+      html.dark-mode.theme-orange { --bg: #000000; --primary: #FF8C42; }
+
+      html.theme-purple { --primary: #AF52DE; --secondary: #BF5AF2; }
+      html.theme-wine { --primary: #A00030; --secondary: #FF3B30; }
+      
+      html.theme-colorful { --primary: #FF2D55; --secondary: #AF52DE; }
+
+      html.theme-mono { --primary: #333; --secondary: #666; --bg: #F2F2F7; --card: #FFF; }
+      html.dark-mode.theme-mono { --bg: #000; --card: #1C1C1E; --primary: #8E8E93; }
+      
+      html.theme-twitter { --bg: #FFFFFF; --card: #FFFFFF; --primary: #1D9BF0; --text: #0F1419; }
+      html.dark-mode.theme-twitter { --bg: #000000; --card: #000000; --primary: #1D9BF0; --text: #E7E9EA; }
+
+      html.theme-fanbox { --primary: #F5C500; --secondary: #FFEA66; --bg: #F8F8F8; }
+      html.dark-mode.theme-fanbox { --bg: #000000; --primary: #FFD800; }
+      
+      html.theme-youtube { --primary: #FF0000; --secondary: #FF4444; }
+      html.theme-tech { --primary: #0070F3; --secondary: #50E3C2; --bg: #F0F5FF; }
+      html.dark-mode.theme-tech { --primary: #00F0FF; --bg: #050A14; --card: #0A1428; --text: #E0F0FF; }
+      
+      html.theme-plurk { --primary: #CF473E; --secondary: #FF8077; --bg: #FDF6E3; }
+      html.dark-mode.theme-plurk { --bg: #1A1A1A; --primary: #FF574D; }
+      
+      html.theme-melon { --primary: #66CC33; --secondary: #88DD55; }
+
+      body {
+        -webkit-tap-highlight-color: transparent;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      }
+      /* Custom Scrollbar hide */
+      ::-webkit-scrollbar {
+          width: 0px;
+          background: transparent;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.1/",
+    "react": "https://esm.sh/react@^19.2.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.32.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.559.0"
+  }
+}
+</script>
+</head>
+<body class="bg-bg text-text transition-colors duration-300">
+    <div id="root"></div>
+</body>
+</html>

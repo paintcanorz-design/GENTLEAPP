@@ -2119,13 +2119,14 @@
                 replyBtn.innerHTML = 'AI 回覆';
             }
             
-            // AI 完成後，解鎖 Regen 按鈕 (僅在非自訂生成模式下)
-            if (currentMain !== "自訂生成") {
-                regenBtn.classList.remove('disabled');
-            }
+            // AI 完成後，解鎖 Regen 按鈕
+            regenBtn.classList.remove('disabled');
         };
 
         init();
     </script>
 </body>
 </html>
+
+
+

@@ -1,8 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Phrase } from "../types";
 
-const apiKey = process.env.API_KEY || ''; 
-const ai = new GoogleGenAI({ apiKey });
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const MODEL_NAME = 'gemini-2.5-flash';
 
@@ -20,8 +19,6 @@ const phraseSchema = {
 };
 
 export const generateKeywords = async (keyword: string, count: number = 6): Promise<Phrase[]> => {
-  if (!apiKey) return [{ jp: "API Key Missing", cn: "請設定 API Key" }];
-
   try {
     const prompt = `
       You are a specialized 'Gentleman AI' praise generator.
@@ -49,8 +46,6 @@ export const generateKeywords = async (keyword: string, count: number = 6): Prom
 };
 
 export const generateReply = async (context: string, count: number = 6): Promise<Phrase[]> => {
-  if (!apiKey) return [{ jp: "API Key Missing", cn: "請設定 API Key" }];
-
   try {
     const prompt = `
       You are a supportive fan.
@@ -78,8 +73,6 @@ export const generateReply = async (context: string, count: number = 6): Promise
 };
 
 export const rewritePhrases = async (phrases: Phrase[], contextLabel: string): Promise<Phrase[]> => {
-  if (!apiKey) return phrases; // Return original if no key
-
   try {
     const inputPhrases = phrases.map(p => p.jp).join(", ");
     const prompt = `

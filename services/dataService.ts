@@ -43,7 +43,9 @@ const FALLBACK_DATA: Database = {
 };
 
 const cleanStr = (str: string) => str ? str.trim().replace(/^"|"$/g, '').trim() : '';
-const stripEmojis = (str: string) => {
+
+// Exported for Pure Mode in App.tsx
+export const stripEmojis = (str: string) => {
     if (!str) return "";
     return str.replace(/[^\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u0020-\u007E\u00A0-\u00FF\u3000-\u303F]/g, '').replace(/\s+/g, ' ').trim();
 };

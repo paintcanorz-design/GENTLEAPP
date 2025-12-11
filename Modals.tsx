@@ -113,6 +113,7 @@ export const SettingsModal = ({
             { id: 'theme', label: '🏆 外觀' },
             { id: 'faces', label: '🙂 臉部' },
             { id: 'decor', label: '✨ 裝飾' },
+            { id: 'custom', label: '🎨 自訂' },
             { id: 'data', label: '💾 資料' }
         ].map(tab => (
           <button
@@ -142,6 +143,17 @@ export const SettingsModal = ({
                       type="checkbox" 
                       checked={settings.darkMode}
                       onChange={e => updateSetting('darkMode', e.target.checked)}
+                      className="accent-primary w-5 h-5"
+                  />
+                </div>
+
+                {/* Pure Mode (Hide Fun) */}
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm">隱藏趣味性要素</span>
+                  <input 
+                      type="checkbox" 
+                      checked={settings.hideFun}
+                      onChange={e => updateSetting('hideFun', e.target.checked)}
                       className="accent-primary w-5 h-5"
                   />
                 </div>
@@ -224,6 +236,10 @@ export const SettingsModal = ({
                     </button>
                 </div>
             </div>
+
+            <a href="https://twitter.com/intent/tweet?text=%E6%88%91%E7%99%BC%E7%8F%BE%E4%BA%86%E4%B8%80%E5%80%8B%E8%B6%85%E5%A5%BD%E7%94%A8%E7%9A%84%E7%B4%B3%E5%A3%AB%E8%AE%9A%E7%BE%8E%E7%94%A2%E7%94%9F%E5%99%A8+%F0%9F%A4%A4%0A%0A%23%E7%B4%B3%E5%A3%AB%E8%AE%9A%E7%BE%8E%E7%94%A2%E7%94%9F%E5%99%A8+%23%E7%B4%B3%E5%A3%AB%E5%BF%85%E5%82%99+%23%E7%BC%B6%E5%AD%90%E7%89%A7%E5%A0%B4&url=https%3A%2F%2Fwww.paintcanfarm.com%2Ftool-praise-generator" target="_blank" className="block w-full py-4 rounded-2xl bg-black dark:bg-white text-white dark:text-black font-bold text-center hover:opacity-90 transition-opacity">
+                🐦 分享此工具到 X
+            </a>
           </div>
         )}
 
@@ -279,6 +295,38 @@ export const SettingsModal = ({
                             {emoji}
                         </div>
                     ))}
+                </div>
+            </div>
+        )}
+
+        {activeTab === 'custom' && (
+            <div className="bg-bg dark:bg-zinc-900/50 rounded-2xl p-4 space-y-4">
+                <h3 className="text-xs font-bold text-sub-text uppercase tracking-wider">自訂表符數量</h3>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm">最少幾個？ ({settings.customMin || 3})</span>
+                  <input 
+                      type="range" min="1" max="10" 
+                      value={settings.customMin || 3}
+                      onChange={e => {
+                          const val = parseInt(e.target.value);
+                          const max = settings.customMax || 5;
+                          updateSetting('customMin', val > max ? max : val);
+                      }}
+                      className="accent-primary w-24 sm:w-32"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-sm">最多幾個？ ({settings.customMax || 5})</span>
+                  <input 
+                      type="range" min="1" max="10" 
+                      value={settings.customMax || 5}
+                      onChange={e => {
+                          const val = parseInt(e.target.value);
+                          const min = settings.customMin || 3;
+                          updateSetting('customMax', val < min ? min : val);
+                      }}
+                      className="accent-primary w-24 sm:w-32"
+                  />
                 </div>
             </div>
         )}
@@ -639,10 +687,26 @@ export const WelcomeModal = ({
 }) => {
   if (!isOpen) return null;
 
+  const handleDownload = async () => {
+      const element = document.getElementById('welcome-card-content');
+      if (!element) return;
+      // @ts-ignore
+      if (window.html2canvas) {
+          // @ts-ignore
+          const canvas = await window.html2canvas(element, { backgroundColor: null, scale: 2 });
+          const link = document.createElement('a');
+          link.download = `gentleman_fortune_${Date.now()}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+      } else {
+          alert("Image generation library not loaded.");
+      }
+  }
+
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md animate-fade-in" onClick={onClose}>
       <div className="w-full max-w-sm bg-card dark:bg-card-dark rounded-[40px] overflow-hidden shadow-2xl animate-bounce-small" onClick={e => e.stopPropagation()}>
-         <div className="p-8 pb-10 bg-gradient-to-b from-white to-slate-50 dark:from-zinc-800 dark:to-black text-center relative border-b border-border">
+         <div id="welcome-card-content" className="p-8 pb-10 bg-gradient-to-b from-white to-slate-50 dark:from-zinc-800 dark:to-black text-center relative border-b border-border">
             <div className="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-xs font-black tracking-widest shadow-lg shadow-primary/30 mb-6 uppercase">
               ✨ 今日紳士運勢 ✨
             </div>
@@ -660,7 +724,7 @@ export const WelcomeModal = ({
             </div>
          </div>
          <div className="flex bg-bg dark:bg-zinc-900 p-4 gap-3">
-             <button onClick={() => { /* Implement save image if needed */ }} className="flex-1 py-4 rounded-[20px] bg-card dark:bg-zinc-800 text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors text-text">
+             <button onClick={handleDownload} className="flex-1 py-4 rounded-[20px] bg-card dark:bg-zinc-800 text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors text-text">
                 📥 存圖
              </button>
              <button onClick={onClose} className="flex-[1.5] py-4 rounded-[20px] bg-primary text-white text-sm font-bold shadow-xl shadow-primary/30 active:scale-95 transition-transform">

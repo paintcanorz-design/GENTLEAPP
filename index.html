@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gentleman AI Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -23,6 +24,7 @@
               'fade-in': 'fadeIn 0.5s ease-out',
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'bounce-small': 'bounceSmall 0.3s',
+              'shake': 'shake 0.4s ease-in-out',
             },
             keyframes: {
               fadeIn: {
@@ -32,6 +34,13 @@
               bounceSmall: {
                 '0%, 100%': { transform: 'scale(1)' },
                 '50%': { transform: 'scale(0.95)' },
+              },
+              shake: {
+                '0%, 100%': { transform: 'translateX(0)' },
+                '20%': { transform: 'translateX(-5px)' },
+                '40%': { transform: 'translateX(5px)' },
+                '60%': { transform: 'translateX(-3px)' },
+                '80%': { transform: 'translateX(3px)' },
               }
             }
           }

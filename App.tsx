@@ -12,7 +12,7 @@ import {
   ModalType,
   SavedCategory
 } from './types';
-import { fetchData } from './services/dataService';
+import { fetchData, stripEmojis } from './services/dataService';
 import { generateKeywords, generateReply, rewritePhrases } from './services/geminiService';
 import { SettingsModal, HistoryModal, AchievementsModal, WelcomeModal, TutorialModal, LevelModal } from './Modals';
 import { 
@@ -95,6 +95,7 @@ const App: React.FC = () => {
   
   const [activeModal, setActiveModal] = useState<ModalType>('welcome');
   const [welcomeData, setWelcomeData] = useState({ jp: "載入中...", icon: "🎁", stars: 3 });
+  const [shakingBtn, setShakingBtn] = useState<string | null>(null);
 
   // Session counters for achievements
   const regenCountRef = useRef(0);
@@ -104,6 +105,7 @@ const App: React.FC = () => {
   const eroticStreakRef = useRef(0);
   const cuteStreakRef = useRef(0);
   const themeSetRef = useRef<Set<string>>(new Set());
+  const aiLastTime = useRef(0);
 
   // --- Effects ---
 
@@ -143,7 +145,6 @@ const App: React.FC = () => {
           setSettings({ 
               ...DEFAULT_SETTINGS, 
               ...parsed,
-              // Ensure arrays are not undefined if legacy data is loaded
               activeFaces: parsed.activeFaces || DEFAULT_FACES,
               activeDecor: parsed.activeDecor || DEFAULT_DECOR,
               disabledFaces: parsed.disabledFaces || [],
@@ -160,7 +161,7 @@ const App: React.FC = () => {
       if (savedAchieve) setUserAchieve(JSON.parse(savedAchieve));
     } catch(e) {}
 
-    // Wix Message Listener - Critical for restoration
+    // Wix Message Listener
     const handleMessage = (event: MessageEvent) => {
       const data = event.data;
       if (data.type === 'LOAD_DATA' && data.payload) {
@@ -170,7 +171,6 @@ const App: React.FC = () => {
                  setSettings(prev => ({ 
                      ...prev, 
                      ...payload.appSettings,
-                     // Safeguard against missing arrays in payload
                      activeFaces: payload.appSettings.activeFaces || prev.activeFaces || DEFAULT_FACES,
                      activeDecor: payload.appSettings.activeDecor || prev.activeDecor || DEFAULT_DECOR
                  }));
@@ -183,7 +183,6 @@ const App: React.FC = () => {
       }
     };
     window.addEventListener('message', handleMessage);
-    // Request load from parent
     window.parent.postMessage({ type: 'REQUEST_LOAD' }, "*");
 
     return () => window.removeEventListener('message', handleMessage);
@@ -218,7 +217,6 @@ const App: React.FC = () => {
       root.classList.add(`theme-${settings.userTheme}`);
     }
 
-    // Dark Mode Logic
     if (settings.darkMode) {
         root.classList.add('dark');
         root.classList.add('dark-mode');
@@ -231,36 +229,36 @@ const App: React.FC = () => {
     const bg = computedStyle.getPropertyValue('--bg').trim();
     window.parent.postMessage({ type: 'CHANGE_BG', color: bg || '#F2F2F7' }, "*");
 
-    // Track Theme Usage
     themeSetRef.current.add(settings.userTheme);
     if(themeSetRef.current.size >= 3) unlockAchievement('color_master');
   }, [settings.userTheme, settings.darkMode]);
 
-  // 4. Other Checks
   useEffect(() => {
       if (!settings.showCN) unlockAchievement('n1_japanese');
       if (settings.activeFaces?.length > DEFAULT_FACES.length) unlockAchievement('custom_emoji');
   }, [settings.showCN, settings.activeFaces]);
 
-  // Check all complete
   useEffect(() => {
      if(userAchieve['all_complete']) return;
-     const total = Object.keys(ACHIEVEMENTS_DATA).length - 1; // exclude all_complete itself
-     // Fix for potentially undefined values during filtering
+     const total = Object.keys(ACHIEVEMENTS_DATA).length - 1;
      const unlocked = Object.values(userAchieve).filter(u => {
          const key = Object.keys(userAchieve).find(k => userAchieve[k] === u);
          return u.unlocked && key && ACHIEVEMENTS_DATA[key]?.id !== 'all_complete';
      }).length;
-     
      if(unlocked >= total && total > 0) unlockAchievement('all_complete');
   }, [userAchieve]);
 
 
   // --- Logic Helpers ---
 
+  const triggerHaptic = (duration = 10) => {
+      if (navigator.vibrate) navigator.vibrate(duration);
+  };
+
   const unlockAchievement = (id: string) => {
     if (settings.hideFun || userAchieve[id]?.unlocked || !ACHIEVEMENTS_DATA[id]) return;
     setUserAchieve(prev => ({ ...prev, [id]: { unlocked: true, date: Date.now() } }));
+    triggerHaptic(50);
     addXP(10); 
   };
 
@@ -268,12 +266,12 @@ const App: React.FC = () => {
     if (settings.hideFun) return;
     setSettings(prev => {
       const newXP = prev.userXP + amount;
-      // Requirement: 5 XP per level
       let newLevel = Math.floor(newXP / 5) + 1;
       
       if (newLevel > prev.userLevel) {
           if(newLevel >= 50) unlockAchievement('level_50');
           if(newLevel >= 100) unlockAchievement('level_100');
+          triggerHaptic(200);
       }
       return { ...prev, userXP: newXP, userLevel: newLevel };
     });
@@ -283,12 +281,19 @@ const App: React.FC = () => {
     if (style === EmojiStyle.EXCLAMATION) return PUNCTUATIONS[Math.floor(Math.random() * PUNCTUATIONS.length)];
     if (style === EmojiStyle.KAOMOJI) return " " + KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];
     
-    // SAFEGUARD: Check for undefined/null arrays before accessing .length
     const faces = (settings.activeFaces && settings.activeFaces.length > 0) ? settings.activeFaces : DEFAULT_FACES;
     const decorList = (settings.activeDecor && settings.activeDecor.length > 0) ? settings.activeDecor : DEFAULT_DECOR;
     
+    // RESTORED CUSTOM LOGIC: use min/max settings
     if (style === EmojiStyle.CUSTOM) {
-        return " " + faces[0] + decorList[0]; 
+        const min = settings.customMin || 1;
+        const max = settings.customMax || 3;
+        const count = Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        const face = faces[Math.floor(Math.random() * faces.length)];
+        let decor = "";
+        for(let i=0; i<count; i++) decor += decorList[Math.floor(Math.random() * decorList.length)];
+        return " " + face + decor; 
     }
     
     const face = faces[Math.floor(Math.random() * faces.length)];
@@ -322,7 +327,6 @@ const App: React.FC = () => {
     if (settings.totalCopies + 1 >= 50) unlockAchievement('copy_50');
     if (settings.totalCopies + 1 >= 500) unlockAchievement('copy_500');
 
-    // Combo Logic
     const now = Date.now();
     if (now - copyTimeRef.current < 10000) {
         copyComboRef.current += 1;
@@ -331,6 +335,7 @@ const App: React.FC = () => {
         copyComboRef.current = 1;
     }
     copyTimeRef.current = now;
+    triggerHaptic(10);
 
     window.parent.postMessage({ type: 'TRACK_COPY', payload: text }, "*");
   };
@@ -343,9 +348,11 @@ const App: React.FC = () => {
     window.speechSynthesis.speak(u);
     voiceCountRef.current += 1;
     if (voiceCountRef.current >= 10) unlockAchievement('voice_lover');
+    triggerHaptic(10);
   };
 
   const toggleFavorite = (text: string) => {
+    triggerHaptic(10);
     if (favorites.includes(text)) {
       setFavorites(prev => prev.filter(f => f !== text));
       unlockAchievement('fav_del');
@@ -359,6 +366,7 @@ const App: React.FC = () => {
   };
 
   const toggleFeaturedCategory = (main: string, sub: string, label: string) => {
+      triggerHaptic(10);
       const exists = savedCategories.find(c => c.main === main && c.sub === sub);
       if (exists) {
           setSavedCategories(prev => prev.filter(c => !(c.main === main && c.sub === sub)));
@@ -369,11 +377,11 @@ const App: React.FC = () => {
   };
 
   const handleSelectSub = (mainKey: string, subKey: string, fromFeatured = false) => {
+    triggerHaptic(10);
     setCurrentMain(mainKey);
     setCurrentSub(subKey);
-    if(fromFeatured) setIsDictExpanded(false); // If clicked from featured, we can collapse dict or keep as is.
+    if(fromFeatured) setIsDictExpanded(false); 
     
-    // Achievement Tracking for streaks
     if (subKey === "🔞 紳士讚美") {
          eroticStreakRef.current += 1;
          if(eroticStreakRef.current >= 10) unlockAchievement('erotic_fan');
@@ -395,6 +403,7 @@ const App: React.FC = () => {
 
   const handleRegen = () => {
     if (status.type !== AppStatusType.SELECTED || !currentMain || !currentSub) return;
+    triggerHaptic(10);
     
     const subData = db[currentMain]?.subs[currentSub];
     if (subData) {
@@ -406,11 +415,26 @@ const App: React.FC = () => {
   };
 
   const handleRerollEmoji = () => {
+    triggerHaptic(10);
     setResults(prev => prev.map(r => ({ ...r, emoji: generateEmoji(emojiStyle) })));
   };
 
+  const checkAiRateLimit = (type: string) => {
+      const now = Date.now();
+      if (now - aiLastTime.current < 5000) { // 5s cooldown
+          setShakingBtn(type);
+          setTimeout(() => setShakingBtn(null), 500);
+          triggerHaptic(50);
+          return false;
+      }
+      aiLastTime.current = now;
+      return true;
+  };
+
   const handleAiKeyword = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !checkAiRateLimit('keyword')) return;
+    
+    triggerHaptic(20);
     setStatus({ type: AppStatusType.GEN_KEYWORD, text: '關鍵語句生成中...' });
     setResults([]);
     window.parent.postMessage({ type: 'REQUEST_BATCH_AI', context: { main: "Keyword", sub: inputValue } }, "*"); 
@@ -424,7 +448,9 @@ const App: React.FC = () => {
   };
 
   const handleAiReply = async () => {
-    if (!inputValue.trim()) return;
+    if (!inputValue.trim() || !checkAiRateLimit('reply')) return;
+
+    triggerHaptic(20);
     setStatus({ type: AppStatusType.GEN_REPLY, text: '回覆生成中...' });
     setResults([]);
     window.parent.postMessage({ type: 'REQUEST_BATCH_AI', context: { main: "Reply", sub: inputValue } }, "*"); 
@@ -438,7 +464,9 @@ const App: React.FC = () => {
   };
 
   const handleAiRewrite = async () => {
-    if (results.length === 0) return;
+    if (results.length === 0 || !checkAiRateLimit('rewrite')) return;
+    
+    triggerHaptic(20);
     const context = currentSub ? db[currentMain!]?.subs[currentSub]?.label : "自訂";
     
     setStatus({ type: AppStatusType.AI_REWRITING, text: `${context} + AI改寫中...` });
@@ -456,6 +484,7 @@ const App: React.FC = () => {
       const query = inputValue.trim().toLowerCase();
       if(!query) return;
       unlockAchievement('first_search');
+      triggerHaptic(10);
       
       const matches: Phrase[] = [];
       Object.values(db).forEach(main => {
@@ -515,10 +544,12 @@ const App: React.FC = () => {
       u.pitch = settings.voicePitch;
       window.speechSynthesis.speak(u);
       if(settings.voiceRate >= 1.5) unlockAchievement('rap_god');
+      triggerHaptic(10);
   };
 
   const handleSetEmojiStyle = (s: EmojiStyle) => {
       setEmojiStyle(s);
+      triggerHaptic(10);
       if (s === EmojiStyle.KAOMOJI) unlockAchievement('kaomoji_fan');
   }
 
@@ -587,7 +618,7 @@ const App: React.FC = () => {
           🎩 紳士ＡＩ讚美產生器
         </h1>
         <div 
-            onClick={() => setActiveModal('settings')}
+            onClick={() => { triggerHaptic(10); setActiveModal('settings'); }}
             className="absolute right-0 top-1/2 -translate-y-1/2 p-3 rounded-full bg-card dark:bg-card-dark shadow-sm cursor-pointer hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors z-10"
         >
           <Settings className="w-5 h-5 text-sub-text" />
@@ -599,7 +630,7 @@ const App: React.FC = () => {
         
         {/* Header - Expandable */}
         <div 
-          onClick={() => setIsDictExpanded(!isDictExpanded)}
+          onClick={() => { triggerHaptic(10); setIsDictExpanded(!isDictExpanded); }}
           className="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 dark:hover:bg-zinc-800/50 transition-colors"
         >
            <div className="flex items-center gap-2 text-sm font-extrabold text-text">
@@ -609,7 +640,7 @@ const App: React.FC = () => {
            
            {!isDictExpanded && (
                <button 
-                onClick={(e) => { e.stopPropagation(); setCurrentMain('featured'); setIsDictExpanded(true); }}
+                onClick={(e) => { e.stopPropagation(); triggerHaptic(10); setCurrentMain('featured'); setIsDictExpanded(true); }}
                 className="text-xs bg-bg dark:bg-zinc-800 text-text px-3 py-1 rounded-full font-bold flex items-center gap-1 hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors"
                >
                  <Star size={12} className="text-yellow-500 fill-current" /> 精選
@@ -628,7 +659,7 @@ const App: React.FC = () => {
                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mb-4">
                      {/* Featured Button */}
                      <button
-                        onClick={() => setCurrentMain('featured')}
+                        onClick={() => { triggerHaptic(10); setCurrentMain('featured'); }}
                         className={`
                           px-2 py-2 rounded-full text-sm font-bold transition-all duration-200 truncate flex items-center justify-center gap-1
                           ${currentMain === 'featured' 
@@ -642,7 +673,7 @@ const App: React.FC = () => {
                      {Object.entries(db).map(([key, cat]) => (
                        <button
                          key={key}
-                         onClick={() => setCurrentMain(key === currentMain ? null : key)}
+                         onClick={() => { triggerHaptic(10); setCurrentMain(key === currentMain ? null : key); }}
                          className={`
                            px-2 py-2 rounded-full text-sm font-medium transition-all duration-200 truncate
                            ${currentMain === key 
@@ -650,7 +681,7 @@ const App: React.FC = () => {
                              : 'bg-bg dark:bg-zinc-800 text-sub-text hover:bg-slate-200 dark:hover:bg-zinc-700'}
                          `}
                        >
-                         {cat.label}
+                         {settings.hideFun ? stripEmojis(cat.label) : cat.label}
                        </button>
                      ))}
                    </div>
@@ -698,7 +729,7 @@ const App: React.FC = () => {
                                       : 'bg-bg dark:bg-zinc-800 text-sub-text hover:bg-slate-200'}
                                   `}
                                 >
-                                  {item.label}
+                                  {settings.hideFun ? stripEmojis(item.label) : item.label}
                                 </button>
                               ))
                           )
@@ -715,7 +746,7 @@ const App: React.FC = () => {
                                       : 'bg-bg dark:bg-zinc-800 text-sub-text hover:bg-slate-200 dark:hover:bg-zinc-700'}
                                   `}
                                 >
-                                  {sub.label}
+                                  {settings.hideFun ? stripEmojis(sub.label) : sub.label}
                                 </button>
                             ))
                          ) : (
@@ -742,13 +773,13 @@ const App: React.FC = () => {
         <div className="flex gap-2">
           <button 
             onClick={handleAiKeyword}
-            className="flex-1 sm:flex-none whitespace-nowrap bg-gradient-to-br from-secondary to-primary text-white px-5 py-3 rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform hover:brightness-110"
+            className={`flex-1 sm:flex-none whitespace-nowrap bg-gradient-to-br from-secondary to-primary text-white px-5 py-3 rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform hover:brightness-110 ${shakingBtn === 'keyword' ? 'animate-shake bg-red-500' : ''}`}
           >
             AI 生成
           </button>
           <button 
             onClick={handleAiReply}
-            className="flex-1 sm:flex-none whitespace-nowrap bg-gradient-to-br from-secondary to-primary text-white px-5 py-3 rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform hover:brightness-110"
+            className={`flex-1 sm:flex-none whitespace-nowrap bg-gradient-to-br from-secondary to-primary text-white px-5 py-3 rounded-full text-sm font-bold shadow-sm active:scale-95 transition-transform hover:brightness-110 ${shakingBtn === 'reply' ? 'animate-shake bg-red-500' : ''}`}
           >
             AI 回覆
           </button>
@@ -874,6 +905,7 @@ const App: React.FC = () => {
               ${isAiRewriteDisabled
                 ? 'bg-bg dark:bg-zinc-800 text-sub-text cursor-not-allowed' 
                 : 'bg-gradient-to-r from-secondary to-primary text-white hover:brightness-110 active:scale-95 shadow-md'}
+              ${shakingBtn === 'rewrite' ? 'animate-shake bg-red-500 from-red-500 to-red-600' : ''}
             `}
           >
             {status.type === AppStatusType.AI_REWRITING ? (
@@ -912,7 +944,7 @@ const App: React.FC = () => {
       </div>
 
       {/* XP Bar */}
-      <div className="mt-8 mb-2 px-1 select-none cursor-pointer active:scale-95 transition-transform" onClick={() => setActiveModal('xp')}>
+      <div className="mt-8 mb-2 px-1 select-none cursor-pointer active:scale-95 transition-transform" onClick={() => { triggerHaptic(10); setActiveModal('xp'); }}>
         <div className="flex justify-between items-end mb-1">
           <div className="flex items-center gap-2">
             <span className="border border-sub-text text-sub-text text-[10px] px-2 py-0.5 rounded-full font-bold">LV.{settings.userLevel}</span>
@@ -931,13 +963,13 @@ const App: React.FC = () => {
       {/* Search & History Bar */}
       <div className="mt-2 bg-card dark:bg-card-dark rounded-full p-2 flex items-center shadow-sm border border-white/50 dark:border-white/5">
          <div className="flex gap-1 pr-2 border-r border-border">
-            <button onClick={() => setActiveModal('history')} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
+            <button onClick={() => { triggerHaptic(10); setActiveModal('history'); }} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
               <History size={18} />
             </button>
-            <button onClick={() => setActiveModal('history')} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
+            <button onClick={() => { triggerHaptic(10); setActiveModal('history'); }} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
               <Star size={18} className={favorites.length > 0 ? "text-yellow-400 fill-current" : ""} />
             </button>
-            <button onClick={() => setActiveModal('achievements')} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
+            <button onClick={() => { triggerHaptic(10); setActiveModal('achievements'); }} className="p-2 rounded-full text-sub-text hover:bg-bg transition-colors">
               <Trophy size={18} />
             </button>
          </div>
@@ -958,7 +990,7 @@ const App: React.FC = () => {
       </div>
 
       {/* Help Banner */}
-      <div onClick={() => setActiveModal('tutorial')} className="mt-6 mx-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 p-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer border border-blue-100 dark:border-slate-700">
+      <div onClick={() => { triggerHaptic(10); setActiveModal('tutorial'); }} className="mt-6 mx-2 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 p-4 rounded-2xl flex items-center justify-center gap-2 cursor-pointer border border-blue-100 dark:border-slate-700">
           <span className="text-lg">📖</span>
           <span className="text-sm font-bold text-primary">點我看完整使用教學</span>
       </div>

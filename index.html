@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gentleman AI Generator</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -56,8 +57,6 @@
         --text: #000000;
         --sub-text: #8E8E93;
         --border: rgba(0, 0, 0, 0.08);
-        --active-bg: #007AFF;
-        --active-text: #ffffff;
       }
 
       html.dark-mode {
@@ -85,7 +84,6 @@
 
       html.theme-purple { --primary: #AF52DE; --secondary: #BF5AF2; }
       html.theme-wine { --primary: #A00030; --secondary: #FF3B30; }
-      
       html.theme-colorful { --primary: #FF2D55; --secondary: #AF52DE; }
 
       html.theme-mono { --primary: #333; --secondary: #666; --bg: #F2F2F7; --card: #FFF; }
@@ -110,28 +108,455 @@
         -webkit-tap-highlight-color: transparent;
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       }
-      /* Custom Scrollbar hide */
-      ::-webkit-scrollbar {
-          width: 0px;
-          background: transparent;
-      }
+      ::-webkit-scrollbar { width: 0px; background: transparent; }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.1",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.1/",
-    "react/": "https://esm.sh/react@^19.2.1/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.32.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.559.0",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "vite": "https://esm.sh/vite@^7.2.7"
-  }
-}
-</script>
+
+    <!-- Dependencies -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "@google/genai": "https://esm.sh/@google/genai@latest",
+        "lucide-react": "https://esm.sh/lucide-react@0.263.1"
+      }
+    }
+    </script>
 </head>
 <body class="bg-bg text-text transition-colors duration-300">
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-</body>
-</html>
+
+    <script type="text/babel" data-type="module" data-presets="typescript,react">
+      import React, { useState, useEffect, useCallback, useRef } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { GoogleGenAI, Type } from '@google/genai';
+      import { 
+        RefreshCw, Dices, Copy, Volume2, Star, Search, History, Trophy, Settings, 
+        Wand2, MessageCircle, ChevronDown, ChevronUp, Plus, Heart, X, Trash2, 
+        RotateCcw, Download, Check, Upload, Type as TypeIcon, BookOpen, Palette 
+      } from 'lucide-react';
+
+      // ==========================================
+      // 🔑 請在這裡設定您的 API KEY
+      // ==========================================
+      const API_KEY = "在此填入您的_GEMINI_API_KEY"; 
+      // ==========================================
+
+      // --- TYPES ---
+      interface Phrase { jp: string; cn: string; }
+      interface SubCategory { label: string; phrases: Phrase[]; }
+      interface MainCategory { label: string; subs: Record<string, SubCategory>; }
+      interface Database { [key: string]: MainCategory; }
+      interface GeneratedResult { base: Phrase; emoji: string; id: string; }
+      enum AppStatusType { IDLE = 'IDLE', SELECTED = 'SELECTED', GEN_REPLY = 'GEN_REPLY', GEN_KEYWORD = 'GEN_KEYWORD', AI_REWRITING = 'AI_REWRITING' }
+      interface AppStatus { type: AppStatusType; text: string; }
+      enum EmojiStyle { EXCLAMATION = 0, KAOMOJI = 1, CUSTOM = 2, FACES = 3 }
+      interface AchievementDef { id: string; icon: string; title: string; desc: string; }
+      interface UserAchievement { unlocked: boolean; date: number; }
+      interface SavedCategory { main: string; sub: string; label: string; }
+      interface AppSettings {
+        fontSize: number; resultCount: number; showCN: boolean; showSpeak: boolean; customMin: number; customMax: number;
+        voiceRate: number; voicePitch: number; userXP: number; userLevel: number; userTheme: string; darkMode: boolean;
+        hideFun: boolean; totalCopies: number;
+        activeFaces: string[]; activeDecor: string[]; disabledFaces: string[]; disabledDecor: string[];
+      }
+      type ModalType = 'settings' | 'history' | 'achievements' | 'tutorial' | 'welcome' | 'xp' | null;
+
+      // --- CONSTANTS ---
+      const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6yn6wGB_TcdLtSDqQMiaDL3WICybpnSqDXqMn8sQ1XFLjiqdqqQib2bO1x7nAHrWYVK7VSrDU2io/pub?output=csv';
+      const MODEL_NAME = 'gemini-2.5-flash';
+      
+      const LEVEL_TITLES: Record<number, string> = { 
+        1: "見習紳士", 10: "變態預備軍", 20: "賢者模式", 30: "資深老司機", 40: "紳士鑑賞家", 50: "碩果僅存的紳士", 
+        60: "變態的極致", 70: "紳士大師", 80: "變態宗師", 90: "紳士之神", 100: "傳說中的變態", 
+        110: "薄本獵人", 120: "聖光破壞者", 130: "絕對領域觀測員", 140: "惡墮鑑賞家", 150: "觸手操控師", 
+        160: "異種姦審查官", 170: "時間停止使用者", 180: "催眠洗腦大師", 190: "步兵團總司令", 200: "變態紳士王" 
+      };
+
+      const UNLOCKS: Record<number, string> = { 
+          10: "🌸 戀愛粉主題", 20: "🧘 賢者黑白主題", 30: "🌿 清新綠主題", 40: "🍷 酒紅色主題", 
+          50: "🥈 冷冽銀主題", 60: "🔮 夢幻紫主題", 70: "👑 帝王金主題", 80: "🌈 色彩繽紛主題", 
+          90: "✖️ X 配色主題", 100: "🍊 愛馬仕橘主題", 110: "📦 Fanbox 主題", 120: "▶️ Youtube 主題", 
+          130: "🤖 科技藍主題", 140: "🦴 噗浪主題", 150: "🍈 Melon 主題" 
+      };
+
+      const ACHIEVEMENTS_DATA: Record<string, AchievementDef> = {
+          "first_copy": { id: "first_copy", icon: "🌱", title: "初出茅廬", desc: "第一次複製任何句子" },
+          "first_fav": { id: "first_fav", icon: "⭐", title: "心動時刻", desc: "第一次將句子加入「我的最愛」" },
+          "first_search": { id: "first_search", icon: "🔍", title: "尋寶獵人", desc: "使用過 1 次「搜尋」功能" },
+          "read_tutorial": { id: "read_tutorial", icon: "📖", title: "好學生", desc: "完整打開並閱讀過「使用教學」" },
+          "download_card": { id: "download_card", icon: "📸", title: "永恆的瞬間", desc: "成功下載一次「今日運勢」圖片" },
+          "n1_japanese": { id: "n1_japanese", icon: "🇯🇵", title: "日文N1", desc: "在設定中關閉「顯示中文翻譯」" },
+          "copy_50": { id: "copy_50", icon: "🗣️", title: "口若懸河", desc: "累計複製次數達到 50 次" },
+          "copy_500": { id: "copy_500", icon: "💘", title: "千言萬語", desc: "累計複製次數達到 500 次" },
+          "combo_master": { id: "combo_master", icon: "⚡", title: "連擊大師", desc: "在 10 秒內連續複製 5 次" },
+          "fav_full": { id: "fav_full", icon: "💗", title: "博愛主義者", desc: "我的最愛存滿 24 個句子" },
+          "fav_del": { id: "fav_del", icon: "💔", title: "斷捨離", desc: "從我的最愛中刪除一個句子" },
+          "regen_20": { id: "regen_20", icon: "🔄", title: "換帖兄弟", desc: "連續點擊「換一批」按鈕 20 次" },
+          "five_star_general": { id: "five_star_general", icon: "🎖️", title: "五星上將", desc: "在今日運勢中抽到五星金框" },
+          "voice_lover": { id: "voice_lover", icon: "🔊", title: "聲之形", desc: "點擊 10 次語音播放按鈕" },
+          "rap_god": { id: "rap_god", icon: "🎤", title: "快嘴饒舌", desc: "將語音語速調到最快 (1.5) 並按下試聽" },
+          "custom_emoji": { id: "custom_emoji", icon: "🙂", title: "表情鍊金術師", desc: "在設定中新增一個「自訂表情符號」" },
+          "erotic_fan": { id: "erotic_fan", icon: "🔞", title: "誠實的紳士", desc: "連續生成「🔞 紳士讚美」分類 10 次" },
+          "pure_love": { id: "pure_love", icon: "🥰", title: "純愛戰士", desc: "連續生成「🥰 單純可愛」分類 10 次" },
+          "kaomoji_fan": { id: "kaomoji_fan", icon: "(=^・^=)", title: "顏文字控", desc: "將表情設定切換為「顏文字」並生成" },
+          "color_master": { id: "color_master", icon: "🌈", title: "色彩大師", desc: "更換過 3 種不同的介面主題" },
+          "ai_awakening": { id: "ai_awakening", icon: "🤖", title: "機械飛昇", desc: "成功使用 AI 功能進行擴寫" },
+          "level_50": { id: "level_50", icon: "🥈", title: "半百紳士", desc: "等級達到 LV.50" },
+          "level_100": { id: "level_100", icon: "👑", title: "百級成神", desc: "等級達到 LV.100" },
+          "all_complete": { id: "all_complete", icon: "🏆", title: "大滿貫", desc: "解鎖所有其他成就" }
+      };
+
+      const DEFAULT_FACES = ["😍", "🥰", "😘", "😚", "😋", "🥵", "😳", "🥺", "😭", "😤", "🙏", "🤤", "😵‍💫", "🫠"];
+      const DEFAULT_DECOR = ["❤️", "🧡", "💛", "💙", "💜", "✨", "🌟", "💫", "💥", "🔥", "💦", "💖", "💘", "💝"];
+      const PUNCTUATIONS = ["…", "…！", "…！！", "！", "！！", "！！！"];
+      const KAOMOJI = ["(≧∇≦)", "(*°∀°)=3", "(´;;ω;;`)", "🙏✨", "(//∇//)"];
+
+      const DEFAULT_SETTINGS: AppSettings = {
+        fontSize: 1, resultCount: 6, showCN: true, showSpeak: true, customMin: 3, customMax: 5,
+        voiceRate: 1.1, voicePitch: 1.0, userXP: 0, userLevel: 1, userTheme: 'default',
+        darkMode: false, hideFun: false, totalCopies: 0,
+        activeFaces: [...DEFAULT_FACES], activeDecor: [...DEFAULT_DECOR], disabledFaces: [], disabledDecor: []
+      };
+
+      // --- SERVICES ---
+
+      // Data Service
+      const stripEmojis = (str) => {
+          if (!str) return "";
+          return str.replace(/[^\u4E00-\u9FFF\u3040-\u309F\u30A0-\u30FF\uFF00-\uFFEF\u0020-\u007E\u00A0-\u00FF\u3000-\u303F]/g, '').replace(/\s+/g, ' ').trim();
+      };
+
+      const fetchData = async () => {
+          const FALLBACK_DATA = {
+             "Reaction": { label: "⏫ 反應短句", subs: { "Cute": { label: "🥰 單純可愛", phrases: [{ jp: "尊い...", cn: "太尊了..." }, { jp: "好き...", cn: "好喜歡..." }] } } }
+          };
+          try {
+              const response = await fetch(SHEET_CSV_URL);
+              if (!response.ok) throw new Error("Network response was not ok");
+              const text = await response.text();
+              const db = {};
+              const rows = text.split(/\r?\n/).slice(1);
+              rows.forEach(row => {
+                  if (!row.trim()) return;
+                  const cols = row.split(','); 
+                  if (cols.length < 4) return;
+                  const mainKey = cols[0]?.trim().replace(/^"|"$/g, '');
+                  const subKey = cols[1]?.trim().replace(/^"|"$/g, '');
+                  const jpText = stripEmojis(cols[2]?.trim().replace(/^"|"$/g, ''));
+                  const cnText = stripEmojis(cols[3]?.trim().replace(/^"|"$/g, ''));
+                  if (!mainKey || !subKey || !jpText) return;
+                  if (!db[mainKey]) db[mainKey] = { label: mainKey, subs: {} };
+                  if (!db[mainKey].subs[subKey]) db[mainKey].subs[subKey] = { label: subKey, phrases: [] };
+                  db[mainKey].subs[subKey].phrases.push({ jp: jpText, cn: cnText });
+              });
+              return Object.keys(db).length > 0 ? db : FALLBACK_DATA;
+          } catch (error) {
+              console.warn("Using fallback data due to fetch error:", error);
+              return FALLBACK_DATA;
+          }
+      };
+
+      // Gemini Service
+      // Initialize only if API key is present
+      const ai = API_KEY ? new GoogleGenAI({ apiKey: API_KEY }) : null;
+      
+      const phraseSchema = {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            jp: { type: Type.STRING, description: "The Japanese phrase" },
+            cn: { type: Type.STRING, description: "Traditional Chinese translation" }
+          },
+          required: ["jp", "cn"]
+        }
+      };
+
+      const generateKeywords = async (keyword, count = 6) => {
+        if (!ai) return [{ jp: "API Key Missing", cn: "請設定 API Key" }];
+        try {
+          const prompt = `You are a specialized 'Gentleman AI' praise generator. Generate ${count} short, enthusiastic, anime-fan-culture style praise phrases based on the keyword: "${keyword}". Target audience: Otaku, fans praising artists/vtubers. Tone: Enthusiastic, slightly exaggerated, polite but passionate. Output pure JSON.`;
+          const response = await ai.models.generateContent({
+            model: MODEL_NAME,
+            contents: prompt,
+            config: { responseMimeType: "application/json", responseSchema: phraseSchema, temperature: 0.8 }
+          });
+          return JSON.parse(response.text || "[]");
+        } catch (error) { console.error(error); return [{ jp: "エラー発生", cn: "生成失敗，請稍後再試" }]; }
+      };
+
+      const generateReply = async (context, count = 6) => {
+        if (!ai) return [{ jp: "API Key Missing", cn: "請設定 API Key" }];
+        try {
+          const prompt = `You are a supportive fan. The user (an artist or creator) said: "${context}". Generate ${count} distinct, warm, and supportive replies in Japanese with Traditional Chinese translations. Tone: Encouraging, gentlemanly, fan-boy/fan-girl style. Output pure JSON.`;
+          const response = await ai.models.generateContent({
+            model: MODEL_NAME,
+            contents: prompt,
+            config: { responseMimeType: "application/json", responseSchema: phraseSchema, temperature: 0.7 }
+          });
+          return JSON.parse(response.text || "[]");
+        } catch (error) { console.error(error); return [{ jp: "エラー発生", cn: "生成失敗，請稍後再試" }]; }
+      };
+
+      const rewritePhrases = async (phrases, contextLabel) => {
+        if (!ai) return phrases;
+        try {
+          const inputPhrases = phrases.map(p => p.jp).join(", ");
+          const prompt = `Rewrite the following Japanese phrases to be more passionate, 'gentlemanly' (in an anime/otaku cultural sense), and varied. Context/Theme: ${contextLabel}. Original phrases: ${inputPhrases}. Return exactly ${phrases.length} rewritten phrases with their Traditional Chinese translations. Output pure JSON.`;
+          const response = await ai.models.generateContent({
+            model: MODEL_NAME,
+            contents: prompt,
+            config: { responseMimeType: "application/json", responseSchema: phraseSchema, temperature: 0.85 }
+          });
+          return JSON.parse(response.text || "[]");
+        } catch (error) { console.error(error); return phrases; }
+      };
+
+      // --- MODALS ---
+      const ModalOverlay = ({ onClose, children }) => (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+          <div className="bg-card dark:bg-card-dark rounded-[32px] w-full max-w-md shadow-2xl flex flex-col max-h-[85vh] overflow-hidden border border-white/10" onClick={e => e.stopPropagation()}>{children}</div>
+        </div>
+      );
+      const ModalHeader = ({ title, onClose }) => (
+        <div className="flex justify-between items-center p-5 border-b border-border bg-bg/50 dark:bg-zinc-900/50 backdrop-blur-md shrink-0">
+          <h2 className="text-lg font-black tracking-tight">{title}</h2>
+          <button onClick={onClose} className="p-2 rounded-full bg-border hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors active:scale-90"><X size={20} /></button>
+        </div>
+      );
+
+      // Components Definitions (SettingsModal, HistoryModal, etc.)
+      // Merged into specific components for brevity in this single file approach
+
+      // --- MAIN APP COMPONENT ---
+      const App = () => {
+        const [db, setDb] = useState({});
+        const [loading, setLoading] = useState(true);
+        const [isDictExpanded, setIsDictExpanded] = useState(false);
+        const [currentMain, setCurrentMain] = useState(null);
+        const [currentSub, setCurrentSub] = useState(null);
+        const [results, setResults] = useState([]);
+        const [status, setStatus] = useState({ type: AppStatusType.IDLE, text: '請選擇預設辭庫或AI生成' });
+        const [emojiStyle, setEmojiStyle] = useState(EmojiStyle.FACES);
+        const [favorites, setFavorites] = useState([]);
+        const [savedCategories, setSavedCategories] = useState([]);
+        const [historyLog, setHistoryLog] = useState([]);
+        const [inputValue, setInputValue] = useState('');
+        const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+        const [userAchieve, setUserAchieve] = useState({});
+        const [activeModal, setActiveModal] = useState('welcome');
+        const [welcomeData, setWelcomeData] = useState({ jp: "載入中...", icon: "🎁", stars: 3 });
+        const [shakingBtn, setShakingBtn] = useState(null);
+
+        // Refs
+        const regenCountRef = useRef(0);
+        const voiceCountRef = useRef(0);
+        const copyTimeRef = useRef(0);
+        const copyComboRef = useRef(0);
+        const eroticStreakRef = useRef(0);
+        const cuteStreakRef = useRef(0);
+        const themeSetRef = useRef(new Set());
+        const aiLastTime = useRef(0);
+
+        const triggerHaptic = (d = 10) => { if (navigator.vibrate) navigator.vibrate(d); };
+
+        const unlockAchievement = (id) => {
+          if (settings.hideFun || userAchieve[id]?.unlocked || !ACHIEVEMENTS_DATA[id]) return;
+          setUserAchieve(prev => ({ ...prev, [id]: { unlocked: true, date: Date.now() } }));
+          triggerHaptic(50);
+          addXP(10);
+        };
+
+        const addXP = (amount) => {
+          if (settings.hideFun) return;
+          setSettings(prev => {
+            const newXP = prev.userXP + amount;
+            let newLevel = Math.floor(newXP / 5) + 1;
+            if (newLevel > prev.userLevel) {
+                if(newLevel >= 50) unlockAchievement('level_50');
+                if(newLevel >= 100) unlockAchievement('level_100');
+                triggerHaptic(200);
+            }
+            return { ...prev, userXP: newXP, userLevel: newLevel };
+          });
+        };
+
+        useEffect(() => {
+          fetchData().then(data => {
+            setDb(data);
+            setLoading(false);
+            const keys = Object.keys(data);
+            if (keys.length > 0) {
+              const m = data[keys[Math.floor(Math.random() * keys.length)]];
+              const sKeys = Object.keys(m.subs);
+              const s = m.subs[sKeys[Math.floor(Math.random() * sKeys.length)]];
+              const p = s.phrases[Math.floor(Math.random() * s.phrases.length)];
+              const stars = Math.random() < 0.2 ? 5 : (Math.floor(Math.random() * 3) + 3);
+              const faces = (settings.activeFaces && settings.activeFaces.length > 0) ? settings.activeFaces : DEFAULT_FACES;
+              setWelcomeData({ jp: p.jp, icon: faces[Math.floor(Math.random() * faces.length)] || "🎁", stars });
+              if (stars === 5) setTimeout(() => unlockAchievement('five_star_general'), 1000);
+            }
+          });
+          // Load LocalStorage
+          try {
+            const s = localStorage.getItem('appSettings'); if(s) setSettings({...DEFAULT_SETTINGS, ...JSON.parse(s)});
+            const f = localStorage.getItem('favorites'); if(f) setFavorites(JSON.parse(f));
+            const sc = localStorage.getItem('savedCategories'); if(sc) setSavedCategories(JSON.parse(sc));
+            const hl = localStorage.getItem('historyLog'); if(hl) setHistoryLog(JSON.parse(hl));
+            const ua = localStorage.getItem('userAchieve'); if(ua) setUserAchieve(JSON.parse(ua));
+          } catch(e){}
+
+          const handleMsg = (e) => {
+              if (e.data.type === 'LOAD_DATA' && e.data.payload) {
+                 const p = typeof e.data.payload === 'string' ? JSON.parse(e.data.payload) : e.data.payload;
+                 if(p.appSettings) setSettings(pr => ({...pr, ...p.appSettings}));
+                 if(p.favorites) setFavorites(p.favorites);
+                 if(p.savedSubCategories) setSavedCategories(p.savedSubCategories);
+                 if(p.historyLog) setHistoryLog(p.historyLog);
+                 if(p.userAchieve) setUserAchieve(p.userAchieve);
+              }
+          };
+          window.addEventListener('message', handleMsg);
+          window.parent.postMessage({ type: 'REQUEST_LOAD' }, "*");
+          return () => window.removeEventListener('message', handleMsg);
+        }, []);
+
+        useEffect(() => {
+          localStorage.setItem('appSettings', JSON.stringify(settings));
+          localStorage.setItem('favorites', JSON.stringify(favorites));
+          localStorage.setItem('savedCategories', JSON.stringify(savedCategories));
+          localStorage.setItem('historyLog', JSON.stringify(historyLog));
+          localStorage.setItem('userAchieve', JSON.stringify(userAchieve));
+          window.parent.postMessage({ type: 'SAVE_DATA', payload: JSON.stringify({ appSettings: settings, favorites, savedSubCategories: savedCategories, historyLog, userAchieve }) }, "*");
+        }, [settings, favorites, savedCategories, historyLog, userAchieve]);
+
+        useEffect(() => {
+            const root = document.documentElement;
+            root.classList.forEach(c => { if (c.startsWith('theme-')) root.classList.remove(c); });
+            if (settings.userTheme !== 'default') root.classList.add(`theme-${settings.userTheme}`);
+            if (settings.darkMode) { root.classList.add('dark'); root.classList.add('dark-mode'); } 
+            else { root.classList.remove('dark'); root.classList.remove('dark-mode'); }
+            const bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+            window.parent.postMessage({ type: 'CHANGE_BG', color: bg || '#F2F2F7' }, "*");
+            themeSetRef.current.add(settings.userTheme);
+            if(themeSetRef.current.size >= 3) unlockAchievement('color_master');
+        }, [settings.userTheme, settings.darkMode]);
+
+        useEffect(() => {
+            if (!settings.showCN) unlockAchievement('n1_japanese');
+            if (settings.activeFaces?.length > DEFAULT_FACES.length) unlockAchievement('custom_emoji');
+        }, [settings.showCN, settings.activeFaces]);
+        
+        useEffect(() => {
+            if(userAchieve['all_complete']) return;
+            const total = Object.keys(ACHIEVEMENTS_DATA).length - 1;
+            const unlocked = Object.values(userAchieve).filter(u => {
+                const key = Object.keys(userAchieve).find(k => userAchieve[k] === u);
+                return u.unlocked && key && ACHIEVEMENTS_DATA[key]?.id !== 'all_complete';
+            }).length;
+            if(unlocked >= total && total > 0) unlockAchievement('all_complete');
+        }, [userAchieve]);
+
+        const generateEmoji = (style) => {
+            if (style === EmojiStyle.EXCLAMATION) return PUNCTUATIONS[Math.floor(Math.random() * PUNCTUATIONS.length)];
+            if (style === EmojiStyle.KAOMOJI) return " " + KAOMOJI[Math.floor(Math.random() * KAOMOJI.length)];
+            const faces = (settings.activeFaces?.length > 0) ? settings.activeFaces : DEFAULT_FACES;
+            const decorList = (settings.activeDecor?.length > 0) ? settings.activeDecor : DEFAULT_DECOR;
+            const min = style === EmojiStyle.CUSTOM ? (settings.customMin || 1) : 1;
+            const max = style === EmojiStyle.CUSTOM ? (settings.customMax || 3) : 3;
+            const count = Math.floor(Math.random() * (max - min + 1)) + min;
+            const face = faces[Math.floor(Math.random() * faces.length)];
+            let decor = "";
+            for(let i=0; i<count; i++) decor += decorList[Math.floor(Math.random() * decorList.length)];
+            return " " + face + decor; 
+        };
+
+        const createResultsFromPhrases = (phrases) => phrases.map((p, idx) => ({ base: p, emoji: generateEmoji(emojiStyle), id: Date.now() + idx + Math.random().toString() }));
+        const getRandomPhrases = (phrases, count) => [...phrases].sort(() => 0.5 - Math.random()).slice(0, count);
+
+        const handleSelectSub = (main, sub, fromFeatured=false) => {
+            triggerHaptic(10); setCurrentMain(main); setCurrentSub(sub);
+            if(fromFeatured) setIsDictExpanded(false);
+            if (sub === "🔞 紳士讚美") { eroticStreakRef.current++; if(eroticStreakRef.current >= 10) unlockAchievement('erotic_fan'); } else eroticStreakRef.current = 0;
+            if (sub === "🥰 單純可愛") { cuteStreakRef.current++; if(cuteStreakRef.current >= 10) unlockAchievement('pure_love'); } else cuteStreakRef.current = 0;
+            const d = db[main]?.subs[sub];
+            if(d) { setResults(createResultsFromPhrases(getRandomPhrases(d.phrases, settings.resultCount))); setStatus({ type: AppStatusType.SELECTED, text: d.label }); }
+            regenCountRef.current = 0;
+        };
+
+        const handleRegen = () => {
+            if (status.type !== AppStatusType.SELECTED || !currentMain || !currentSub) return;
+            triggerHaptic(10);
+            const d = db[currentMain]?.subs[currentSub];
+            if(d) setResults(createResultsFromPhrases(getRandomPhrases(d.phrases, settings.resultCount)));
+            regenCountRef.current++; if (regenCountRef.current >= 20) unlockAchievement('regen_20');
+        };
+
+        const handleAiAction = async (type) => {
+            if (!inputValue.trim() || (Date.now() - aiLastTime.current < 5000)) { if(inputValue.trim()) { setShakingBtn(type); setTimeout(() => setShakingBtn(null), 500); } return; }
+            aiLastTime.current = Date.now(); triggerHaptic(20);
+            setStatus({ type: type === 'keyword' ? AppStatusType.GEN_KEYWORD : AppStatusType.GEN_REPLY, text: 'AI 生成中...' });
+            setResults([]);
+            window.parent.postMessage({ type: 'REQUEST_BATCH_AI', context: { main: type, sub: inputValue } }, "*"); 
+            const phrases = type === 'keyword' ? await generateKeywords(inputValue, settings.resultCount) : await generateReply(inputValue, settings.resultCount);
+            setResults(createResultsFromPhrases(phrases));
+            setStatus({ type: AppStatusType.IDLE, text: 'AI 完成' });
+            setCurrentSub(null); unlockAchievement('ai_awakening');
+        };
+
+        const handleAiRewrite = async () => {
+            if (results.length === 0 || (Date.now() - aiLastTime.current < 5000)) return;
+            aiLastTime.current = Date.now(); triggerHaptic(20);
+            const context = currentSub ? db[currentMain]?.subs[currentSub]?.label : "自訂";
+            setStatus({ type: AppStatusType.AI_REWRITING, text: 'AI 改寫中...' });
+            const rewritten = await rewritePhrases(results.map(r => r.base), context || "");
+            setResults(createResultsFromPhrases(rewritten));
+            setStatus({ type: AppStatusType.IDLE, text: 'AI 改寫完成' });
+            unlockAchievement('ai_awakening');
+        };
+
+        const handleSearch = () => {
+             const q = inputValue.trim().toLowerCase(); if(!q) return;
+             unlockAchievement('first_search'); triggerHaptic(10);
+             const matches = [];
+             Object.values(db).forEach(m => Object.values(m.subs).forEach(s => s.phrases.forEach(p => { if(p.jp.toLowerCase().includes(q) || p.cn.toLowerCase().includes(q)) matches.push(p); })));
+             if(matches.length === 0) { setStatus({ type: AppStatusType.IDLE, text: '無結果' }); return; }
+             setResults(createResultsFromPhrases(getRandomPhrases(matches, settings.resultCount)));
+             setCurrentMain(null); setCurrentSub(null); setStatus({ type: AppStatusType.IDLE, text: `搜尋: ${inputValue}` });
+        };
+
+        const handleCopy = (text) => {
+            navigator.clipboard.writeText(text); addXP(1);
+            setHistoryLog(p => [text, ...p].slice(0, 20));
+            setSettings(p => ({ ...p, totalCopies: p.totalCopies + 1 }));
+            unlockAchievement('first_copy');
+            if (settings.totalCopies + 1 >= 50) unlockAchievement('copy_50');
+            if (Date.now() - copyTimeRef.current < 10000) { copyComboRef.current++; if(copyComboRef.current >= 5) unlockAchievement('combo_master'); } else copyComboRef.current = 1;
+            copyTimeRef.current = Date.now(); triggerHaptic(10);
+            window.parent.postMessage({ type: 'TRACK_COPY', payload: text }, "*");
+        };
+
+        const toggleFavorite = (text) => {
+            triggerHaptic(10);
+            if (favorites.includes(text)) { setFavorites(p => p.filter(f => f !== text)); unlockAchievement('fav_del'); }
+            else { if (favorites.length >= 24) return alert("已滿"); setFavorites(p => [...p, text]); addXP(3); unlockAchievement('first_fav'); if(favorites.length+1 >= 24) unlockAchievement('fav_full'); }
+        };
+
+        const toggleFeatured = (main, sub, label) => {
+            triggerHaptic(10);
+            const ex = savedCategories.find(c => c.main === main && c.sub === sub);
+            if(ex) setSavedCategories(p => p.filter(c => !(c.main===main && c.sub===sub)));
+            else { setSavedCategories(p => [...p, { main, sub, label }]); addXP(3); }
+        };
+
+        // Render UI
+        const isRegenDisabled = status.type !== AppStatusType.SELECTED;
+        const isAiDisabled = results.length === 0 || [AppStatusType.GEN_REPLY, AppStatusType.GEN_KEYWORD, AppStatusType.AI_REWRITING].includes(status.type);
+
+        return (
+          <div className="min-h-screen pb-12 px-4 sm:px-6 max-w-3xl mx-auto flex flex-col font-sans relative">
+            {activeModal === 'welcome' && <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md animate-fade-in" onClick={() => setActiveModal(null)}><div className="w-full max-w-sm bg-card dark:bg-card-dark rounded-[40px] overflow-hidden shadow-2xl animate-bounce-small" onClick={e=>e.stopPropagation()}><div className="p-8 pb-10 bg-gradient-to-b from-white to-slate-50 dark:from-zinc-800 dark:to-black text-center relative border-b border-border"><div className="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-primary to-secondary text-white text-xs font-black tracking-widest shadow-lg shadow-primary/30 mb-6 uppercase">✨ 今日紳士運勢 ✨</div><div className="text-7xl mb-6 drop-shadow-xl animate-pulse">{welcomeData.icon}</div><h2 className="text-2xl font-black mb-3 leading-snug text-text">{welcomeData.jp}！</h2><div className="text-sm font-medium text-sub-text bg-bg dark:bg-zinc-800/50 inline-block px-4 py-1 rounded-full">紳士指數：<span className="text-yellow-400 drop-shadow-sm ml-1">{"⭐".repeat(welcomeData.stars)}</span></div></div><div className="flex bg-bg dark:bg-zinc-900 p-4 gap-3"><button onClick={() => setActiveModal(null)} className="flex-[1.5] py-4 rounded-[20px] bg-primary text-white text-sm font-bold shadow-xl shadow-primary/30 active:scale-95 transition

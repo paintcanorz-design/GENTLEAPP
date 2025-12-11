@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { AppSettings, AchievementDef, UserAchievement, EmojiStyle } from './types';
-import { X, Trash2, RotateCcw, Download, Check, Star, Plus, Upload, Copy, Volume2, Type } from 'lucide-react';
+import { X, Trash2, RotateCcw, Download, Check, Star, Plus, Upload, Copy, Volume2, Type, BookOpen, Wand2, Palette, Trophy } from 'lucide-react';
 
 // --- Shared Components ---
 const ModalOverlay = ({ onClose, children }: { onClose: () => void, children: React.ReactNode }) => (
@@ -533,30 +533,84 @@ export const TutorialModal = ({
         <ModalOverlay onClose={onClose}>
             <ModalHeader title="📖 使用教學" onClose={onClose} />
             <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full inline-block">🚀 1. 快速上手</h3>
-                    <p className="text-sm text-sub-text leading-relaxed">
-                        <strong className="text-text">Step 1：</strong>點擊「📂 預設辭庫」展開分類。<br/>
-                        <strong className="text-text">Step 2：</strong>在下方選擇情境（細項），系統會立即生成。<br/>
-                        <strong className="text-text">Step 3：</strong>點擊喜歡的語句即可<strong className="text-text">自動複製</strong>。
+                
+                <div className="bg-primary/5 p-4 rounded-2xl border border-primary/10">
+                    <p className="text-sm text-text font-medium leading-relaxed">
+                      歡迎使用 <strong>紳士 AI 產生器</strong>！這是一個專為粉絲、創作者與紳士們打造的讚美與梗圖產生工具。
                     </p>
                 </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm border-b border-border pb-2">
+                        <BookOpen size={18} />
+                        <h3>1. 基礎操作</h3>
+                    </div>
+                    <ul className="text-sm text-sub-text space-y-3 pl-2">
+                        <li>
+                            <strong className="text-text block mb-1">📂 瀏覽辭庫</strong>
+                            點擊上方「預設辭庫」展開分類列表。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">📍 選擇情境</strong>
+                            點擊具體的細項（如：單純可愛、帥氣），系統將立即隨機生成語句。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">📋 一鍵複製</strong>
+                            看到喜歡的句子？直接點擊文字區域即可複製到剪貼簿。
+                        </li>
+                    </ul>
+                </div>
                 
-                <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full inline-block">⚡ 2. 進階功能</h3>
-                    <ul className="text-sm text-sub-text space-y-2 list-disc pl-4">
-                        <li><strong>🔄 換一批：</strong>不滿意當前結果？點此重新隨機生成。</li>
-                        <li><strong>✨ AI 改寫：</strong>覺得語句太單調？讓 AI 幫你潤飾得更生動！</li>
-                        <li><strong>🎨 表情切換：</strong>下方按鈕可切換「顏文字」、「驚嘆號」或「臉+愛心」等風格。</li>
-                        <li><strong>🔊 語音朗讀：</strong>點擊語句旁的喇叭圖示，聆聽日語發音。</li>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm border-b border-border pb-2">
+                        <Wand2 size={18} />
+                        <h3>2. AI 賦能</h3>
+                    </div>
+                    <ul className="text-sm text-sub-text space-y-3 pl-2">
+                        <li>
+                            <strong className="text-text block mb-1">⌨️ 自訂關鍵字</strong>
+                            在輸入框輸入關鍵字（例如「女僕」、「傲嬌」），按下「AI 生成」獲得專屬讚美。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">💬 AI 回覆</strong>
+                            貼上對方說的話，按下「AI 回覆」，讓 AI 幫你想出得體又有趣的應答。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">🪄 魔法改寫</strong>
+                            覺得生成的句子不夠味？點擊下方「AI 改寫」，讓 AI 重新潤飾當前所有結果。
+                        </li>
                     </ul>
                 </div>
 
-                <div className="space-y-3">
-                    <h3 className="text-sm font-bold text-primary bg-primary/10 px-4 py-2 rounded-full inline-block">📊 3. 等級與收藏</h3>
-                    <p className="text-sm text-sub-text leading-relaxed">
-                        每次複製或收藏語句都能獲得<strong>經驗值 (XP)</strong>。<br/>
-                        隨著等級提升，你可以解鎖更多<strong>介面主題顏色</strong>！
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm border-b border-border pb-2">
+                        <Palette size={18} />
+                        <h3>3. 個性化與裝飾</h3>
+                    </div>
+                    <ul className="text-sm text-sub-text space-y-3 pl-2">
+                        <li>
+                            <strong className="text-text block mb-1">😊 表情風格</strong>
+                            透過下方按鈕切換「臉+♡」、「顏文字」或「驚嘆號」風格，甚至可以在設定中自訂專屬表情組合。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">🔊 語音朗讀</strong>
+                            點擊 🔊 圖示，聆聽日語發音（可於設定調整語速與音調）。
+                        </li>
+                        <li>
+                            <strong className="text-text block mb-1">⭐ 收藏與精選</strong>
+                            點擊星星收藏語句，或將常用的細分類加入「精選」以便快速訪問。
+                        </li>
+                    </ul>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-primary font-bold text-sm border-b border-border pb-2">
+                        <Trophy size={18} />
+                        <h3>4. 等級與成就</h3>
+                    </div>
+                    <p className="text-sm text-sub-text leading-relaxed pl-2">
+                        您的每一次互動（複製、收藏、生成）都會累積 <strong>XP 經驗值</strong>。<br/>
+                        隨著等級提升，您將獲得<strong>專屬稱號</strong>並解鎖更多繽紛的<strong>介面主題顏色</strong>！
                     </p>
                 </div>
             </div>
